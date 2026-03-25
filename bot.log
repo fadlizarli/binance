@@ -39,3 +39,434 @@
 18:03:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.61 | PnL: $+22.10
 18:04:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.56 | PnL: $+20.40
 18:05:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.55 | PnL: $+20.06
+18:06:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.48 | PnL: $+17.68
+18:07:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.49 | PnL: $+18.02
+18:08:47 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.52 | PnL: $+19.04
+18:09:47 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.48 | PnL: $+17.68
+18:10:47 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.46 | PnL: $+17.00
+18:11:48 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.46 | PnL: $+17.00
+18:12:48 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.57 | PnL: $+20.74
+18:13:48 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.57 | PnL: $+20.74
+18:14:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.44 | PnL: $+16.32
+18:15:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.44 | PnL: $+16.32
+18:16:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.65 | PnL: $+23.46
+18:16:49 [INFO    ] 🎯 Trailing Stop: $91.80 → $91.81
+18:16:49 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:16:49 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:16:49 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:17:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.44 | PnL: $+16.32
+18:18:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.63 | PnL: $+22.78
+18:19:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.63 | PnL: $+22.78
+18:20:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.68 | PnL: $+24.48
+18:20:51 [INFO    ] 🎯 Trailing Stop: $91.81 → $91.84
+18:20:51 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:20:51 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:20:51 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:21:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.69 | PnL: $+24.82
+18:21:51 [INFO    ] 🎯 Trailing Stop: $91.84 → $91.85
+18:21:51 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:21:51 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:21:51 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:22:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.68 | PnL: $+24.48
+18:23:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.69 | PnL: $+24.82
+18:23:52 [INFO    ] 🎯 Trailing Stop: $91.85 → $91.85
+18:23:52 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:23:52 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:23:52 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:24:53 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.71 | PnL: $+25.50
+18:24:53 [INFO    ] 🎯 Trailing Stop: $91.85 → $91.87
+18:24:53 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:24:53 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:24:53 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:25:53 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.71 | PnL: $+25.50
+18:26:54 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.71 | PnL: $+25.50
+18:27:54 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.80 | PnL: $+28.56
+18:27:54 [INFO    ] 🎯 Trailing Stop: $91.87 → $91.95
+18:27:54 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:27:54 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:27:54 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:28:54 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.80 | PnL: $+28.56
+18:28:54 [INFO    ] 🎯 Trailing Stop: $91.95 → $91.95
+18:28:55 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:28:55 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:28:55 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:29:55 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.80 | PnL: $+28.56
+18:29:55 [INFO    ] 🎯 Trailing Stop: $91.95 → $91.95
+18:29:55 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:29:55 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:29:55 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:30:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.80 | PnL: $+28.56
+18:30:56 [INFO    ] 🎯 Trailing Stop: $91.95 → $91.95
+18:30:56 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:30:56 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:30:56 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:31:57 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+18:31:57 [INFO    ] 🎯 Trailing Stop: $91.95 → $92.14
+18:31:57 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:31:57 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:31:57 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:32:58 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+18:33:59 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.16 | PnL: $+40.80
+18:33:59 [INFO    ] 🎯 Trailing Stop: $92.14 → $92.26
+18:33:59 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:33:59 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:33:59 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:34:59 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.24 | PnL: $+43.52
+18:34:59 [INFO    ] 🎯 Trailing Stop: $92.26 → $92.34
+18:34:59 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:34:59 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:34:59 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:36:00 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.24 | PnL: $+43.52
+18:36:00 [INFO    ] 🎯 Trailing Stop: $92.34 → $92.34
+18:36:00 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:36:00 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:36:00 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:37:00 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.24 | PnL: $+43.52
+18:37:00 [INFO    ] 🎯 Trailing Stop: $92.34 → $92.34
+18:37:01 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:37:01 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:37:01 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:38:01 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.09 | PnL: $+38.42
+18:39:01 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.16 | PnL: $+40.80
+18:40:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.16 | PnL: $+40.80
+18:41:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.17 | PnL: $+41.14
+18:42:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.05 | PnL: $+37.06
+18:43:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.05 | PnL: $+37.06
+18:44:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.03 | PnL: $+36.38
+18:45:04 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+18:46:04 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+18:47:04 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.04 | PnL: $+36.72
+18:48:05 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.04 | PnL: $+36.72
+18:49:05 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.04 | PnL: $+36.72
+18:50:06 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.86 | PnL: $+30.60
+18:51:06 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.86 | PnL: $+30.60
+18:52:06 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.79 | PnL: $+28.22
+18:53:07 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.79 | PnL: $+28.22
+18:54:07 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.82 | PnL: $+29.24
+18:55:07 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.85 | PnL: $+30.26
+18:56:08 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.88 | PnL: $+31.28
+18:57:08 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.88 | PnL: $+31.28
+18:58:08 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+18:59:09 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.88 | PnL: $+31.28
+19:00:09 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.88 | PnL: $+31.28
+19:01:09 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.88 | PnL: $+31.28
+19:02:10 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.97 | PnL: $+34.34
+19:03:10 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+19:04:10 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+19:05:12 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+19:06:12 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+19:07:13 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.02 | PnL: $+36.04
+19:08:13 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.05 | PnL: $+37.06
+19:09:13 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.15 | PnL: $+40.46
+19:10:14 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.15 | PnL: $+40.46
+19:11:14 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.15 | PnL: $+40.46
+19:12:14 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.16 | PnL: $+40.80
+19:13:15 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.16 | PnL: $+40.80
+19:14:15 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.14 | PnL: $+40.12
+19:15:16 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.14 | PnL: $+40.12
+19:16:16 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.14 | PnL: $+40.12
+19:17:16 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.08 | PnL: $+38.08
+19:18:17 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.08 | PnL: $+38.08
+19:19:17 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.95 | PnL: $+33.66
+19:20:17 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.76 | PnL: $+27.20
+19:21:18 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.73 | PnL: $+26.18
+19:22:18 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.67 | PnL: $+24.14
+19:23:19 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.67 | PnL: $+24.14
+19:24:19 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.62 | PnL: $+22.44
+19:25:19 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:26:20 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:27:20 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:28:20 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.55 | PnL: $+20.06
+19:29:20 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.49 | PnL: $+18.02
+19:30:21 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.49 | PnL: $+18.02
+19:31:21 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.47 | PnL: $+17.34
+19:32:21 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.42 | PnL: $+15.64
+19:33:22 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.42 | PnL: $+15.64
+19:34:22 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.53 | PnL: $+19.38
+19:35:22 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:36:23 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.59 | PnL: $+21.42
+19:37:23 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.59 | PnL: $+21.42
+19:38:23 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.63 | PnL: $+22.78
+19:39:24 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.63 | PnL: $+22.78
+19:40:24 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.71 | PnL: $+25.50
+19:41:24 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.69 | PnL: $+24.82
+19:42:25 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.69 | PnL: $+24.82
+19:43:25 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.69 | PnL: $+24.82
+19:44:25 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.70 | PnL: $+25.16
+19:45:26 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.63 | PnL: $+22.78
+19:46:26 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.61 | PnL: $+22.10
+19:47:27 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.59 | PnL: $+21.42
+19:48:27 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.59 | PnL: $+21.42
+19:49:27 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.58 | PnL: $+21.08
+19:50:28 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.58 | PnL: $+21.08
+19:51:28 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.56 | PnL: $+20.40
+19:52:29 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.56 | PnL: $+20.40
+19:53:30 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:54:31 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:55:31 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:56:32 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+19:57:32 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.65 | PnL: $+23.46
+19:58:32 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.80 | PnL: $+28.56
+19:59:33 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:00:33 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:01:33 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:02:34 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.54 | PnL: $+19.72
+20:03:34 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.85 | PnL: $+30.26
+20:04:34 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.85 | PnL: $+30.26
+20:05:35 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.85 | PnL: $+30.26
+20:06:35 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:07:35 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:08:36 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:09:36 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:10:37 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:11:37 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:12:38 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:13:38 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:14:38 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:15:39 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.86 | PnL: $+30.60
+20:16:39 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.86 | PnL: $+30.60
+20:17:39 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.86 | PnL: $+30.60
+20:18:40 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.85 | PnL: $+30.26
+20:19:40 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:20:40 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:21:41 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:22:41 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:23:41 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.87 | PnL: $+30.94
+20:24:41 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.96 | PnL: $+34.00
+20:25:42 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:26:42 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:27:42 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:28:43 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:29:43 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:30:44 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+20:31:44 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+20:32:44 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.21 | PnL: $+42.50
+20:33:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.21 | PnL: $+42.50
+20:34:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.21 | PnL: $+42.50
+20:35:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.10 | PnL: $+38.76
+20:36:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.10 | PnL: $+38.76
+20:37:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.21 | PnL: $+42.50
+20:38:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.15 | PnL: $+40.46
+20:39:47 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.21 | PnL: $+42.50
+20:40:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.18 | PnL: $+41.48
+20:41:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.18 | PnL: $+41.48
+20:42:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.18 | PnL: $+41.48
+20:43:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.25 | PnL: $+43.86
+20:44:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:45:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:46:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:47:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+20:48:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.01 | PnL: $+35.70
+20:49:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.05 | PnL: $+37.06
+20:50:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+20:51:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+20:52:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.99 | PnL: $+35.02
+20:53:53 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:54:53 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:55:54 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:56:54 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:57:54 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:58:55 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+20:59:55 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:00:55 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:01:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:02:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:03:57 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:04:57 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:05:57 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:06:58 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.05 | PnL: $+37.06
+21:07:58 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $93.05 | PnL: $+37.06
+21:09:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:10:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:11:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:12:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:13:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.98 | PnL: $+34.68
+21:14:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.28 | PnL: $+10.88
+21:14:04 [INFO    ] Semua order SOLUSDT dibatalkan
+21:14:04 [INFO    ] 🔒 Posisi ditutup | SOLUSDT SELL 34.0000
+21:14:04 [INFO    ] 🔒 POSISI DITUTUP | STOP_LOSS
+21:14:04 [INFO    ]    LONG SOLUSDT | Entry: $91.96 → Exit: $92.26 | PnL: $+10.20 USDT
+21:15:15 [INFO    ] =======================================================
+21:15:15 [INFO    ] 📊 Close: $92.28 | ATR: 0.64 (0.69%)
+21:15:15 [INFO    ]    EMA  : 92.43/91.80/90.75 [BULLISH]
+21:15:15 [INFO    ]    RSI  : 60.3 [NEUTRAL] Div:BULL_DIV
+21:15:15 [INFO    ]    MACD : 0.6576 hist:0.0652 [NONE]
+21:15:15 [INFO    ]    BB   : 89.19/91.59/93.99 [ABOVE_MID] Squeeze:False
+21:15:15 [INFO    ]    Vol  : 1.76x [HIGH]
+21:15:15 [INFO    ] =======================================================
+21:15:15 [INFO    ] 📥 Membuka posisi LONG | SOLUSDT
+21:15:15 [INFO    ]    Entry: $92.28 | SL: $91.33 | TP: $94.19
+21:15:15 [INFO    ]    Qty: 33.0000 | Risk: $51.45 | R:R 2.00
+21:15:15 [INFO    ] 📥 BUY 33.0000 SOLUSDT | ID:1825622532
+21:15:15 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:15:16 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:15:16 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+21:15:16 [WARNING ] TP attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:15:16 [WARNING ] TP attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:15:16 [ERROR   ] ❌ TP gagal dipasang — dikelola software
+21:16:27 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.30 | PnL: $+0.66
+21:17:28 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $93.07 | PnL: $+26.07
+21:17:28 [INFO    ] 🎯 Trailing Stop: $91.33 → $92.12
+21:17:28 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:17:28 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:17:28 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+21:18:28 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.50 | PnL: $+7.26
+21:19:28 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.34 | PnL: $+1.98
+21:20:29 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.34 | PnL: $+1.98
+21:21:29 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.37 | PnL: $+2.97
+21:22:29 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.32 | PnL: $+1.32
+21:23:30 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.37 | PnL: $+2.97
+21:24:30 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.37 | PnL: $+2.97
+21:25:30 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.18 | PnL: $-3.30
+21:26:31 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.28 | Harga: $92.12 | PnL: $-5.28
+21:26:31 [INFO    ] Semua order SOLUSDT dibatalkan
+21:26:31 [INFO    ] 🔒 Posisi ditutup | SOLUSDT SELL 33.0000
+21:26:31 [INFO    ] 🔒 POSISI DITUTUP | STOP_LOSS
+21:26:31 [INFO    ]    LONG SOLUSDT | Entry: $92.28 → Exit: $92.12 | PnL: $-5.28 USDT
+21:27:42 [INFO    ] =======================================================
+21:27:42 [INFO    ] 📊 Close: $92.08 | ATR: 0.65 (0.71%)
+21:27:42 [INFO    ]    EMA  : 92.39/91.78/90.75 [BULLISH]
+21:27:42 [INFO    ]    RSI  : 57.7 [NEUTRAL] Div:BULL_DIV
+21:27:42 [INFO    ]    MACD : 0.6417 hist:0.0524 [NONE]
+21:27:42 [INFO    ]    BB   : 89.19/91.58/93.97 [ABOVE_MID] Squeeze:False
+21:27:42 [INFO    ]    Vol  : 3.13x [HIGH]
+21:27:42 [INFO    ] =======================================================
+21:27:42 [INFO    ] 📥 Membuka posisi LONG | SOLUSDT
+21:27:42 [INFO    ]    Entry: $92.08 | SL: $91.11 | TP: $94.03
+21:27:42 [INFO    ]    Qty: 33.0000 | Risk: $51.08 | R:R 2.00
+21:27:42 [INFO    ] 📥 BUY 33.0000 SOLUSDT | ID:1825648817
+21:27:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:27:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:27:43 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+21:27:43 [WARNING ] TP attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:27:43 [WARNING ] TP attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+21:27:43 [ERROR   ] ❌ TP gagal dipasang — dikelola software
+21:28:44 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.10 | PnL: $+0.66
+21:29:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.11 | PnL: $+0.99
+21:30:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.11 | PnL: $+0.99
+21:31:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.18 | PnL: $+3.30
+21:32:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.18 | PnL: $+3.30
+21:33:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.31 | PnL: $+7.59
+21:34:46 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.22 | PnL: $+4.62
+21:35:47 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.29 | PnL: $+6.93
+21:36:47 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.27 | PnL: $+6.27
+21:37:48 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.27 | PnL: $+6.27
+21:38:48 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.16 | PnL: $+2.64
+21:39:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.11 | PnL: $+0.99
+21:40:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.09 | PnL: $+0.33
+21:41:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.09 | PnL: $+0.33
+21:42:49 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.11 | PnL: $+0.99
+21:43:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.12 | PnL: $+1.32
+21:44:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.12 | PnL: $+1.32
+21:45:50 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.12 | PnL: $+1.32
+21:46:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.08 | PnL: $+0.00
+21:47:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.08 | PnL: $+0.00
+21:48:51 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.14 | PnL: $+1.98
+21:49:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.14 | PnL: $+1.98
+21:50:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.18 | PnL: $+3.30
+21:51:52 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.17 | PnL: $+2.97
+21:52:53 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.22 | PnL: $+4.62
+21:53:55 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.20 | PnL: $+3.96
+21:54:55 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.19 | PnL: $+3.63
+21:55:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.19 | PnL: $+3.63
+21:56:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.07 | PnL: $-0.33
+21:57:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.08 | PnL: $+0.00
+21:58:56 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.08 | PnL: $+0.00
+21:59:57 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.07 | PnL: $-0.33
+22:00:57 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.00 | PnL: $-2.64
+22:01:58 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.00 | PnL: $-2.64
+22:02:58 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.96 | PnL: $-3.96
+22:03:58 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.99 | PnL: $-2.97
+22:04:59 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.96 | PnL: $-3.96
+22:05:59 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.94 | PnL: $-4.62
+22:06:59 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.95 | PnL: $-4.29
+22:08:00 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.88 | PnL: $-6.60
+22:09:00 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.88 | PnL: $-6.60
+22:10:00 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.62 | PnL: $-15.18
+22:11:01 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.62 | PnL: $-15.18
+22:12:01 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.58 | PnL: $-16.50
+22:13:01 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $92.21 | PnL: $+4.29
+22:14:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.59 | PnL: $-16.17
+22:15:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.56 | PnL: $-17.16
+22:16:02 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.49 | PnL: $-19.47
+22:17:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.44 | PnL: $-21.12
+22:18:03 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $92.08 | Harga: $91.09 | PnL: $-32.67
+22:18:03 [INFO    ] Semua order SOLUSDT dibatalkan
+22:18:03 [ERROR   ] Gagal close posisi: APIError(code=-2022): ReduceOnly Order is rejected.
+22:18:03 [INFO    ] 🔒 POSISI DITUTUP | STOP_LOSS
+22:18:03 [INFO    ]    LONG SOLUSDT | Entry: $92.08 → Exit: $91.05 | PnL: $-33.99 USDT
+22:19:06 [INFO    ] =======================================================
+22:19:06 [INFO    ] 📊 Close: $91.09 | ATR: 0.69 (0.75%)
+22:19:06 [INFO    ]    EMA  : 92.11/91.71/90.76 [BULLISH]
+22:19:06 [INFO    ]    RSI  : 51.2 [NEUTRAL] Div:BULL_DIV
+22:19:06 [INFO    ]    MACD : 0.4987 hist:-0.0714 [BEARISH_CROSS]
+22:19:06 [INFO    ]    BB   : 89.80/91.71/93.61 [BELOW_MID] Squeeze:True
+22:19:06 [INFO    ]    Vol  : 1.86x [HIGH]
+22:19:06 [INFO    ] =======================================================
+22:19:06 [INFO    ] 📥 Membuka posisi LONG | SOLUSDT
+22:19:06 [INFO    ]    Entry: $91.09 | SL: $90.06 | TP: $93.15
+22:19:06 [INFO    ]    Qty: 33.0000 | Risk: $50.69 | R:R 2.00
+22:19:06 [INFO    ] 📥 BUY 33.0000 SOLUSDT | ID:1825691697
+22:19:06 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:19:06 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:19:06 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:19:07 [WARNING ] TP attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:19:07 [WARNING ] TP attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:19:07 [ERROR   ] ❌ TP gagal dipasang — dikelola software
+22:20:08 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.06 | PnL: $-0.99
+22:21:08 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.04 | PnL: $-1.65
+22:22:09 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.31 | PnL: $+7.26
+22:23:09 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.31 | PnL: $+7.26
+22:24:09 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.47 | PnL: $+12.54
+22:25:10 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.46 | PnL: $+12.21
+22:26:10 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.52 | PnL: $+14.19
+22:27:10 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.52 | PnL: $+14.19
+22:28:11 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.49 | PnL: $+13.20
+22:29:11 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.51 | PnL: $+13.86
+22:30:11 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.56 | PnL: $+15.51
+22:30:11 [INFO    ] 🎯 Trailing Stop: $90.06 → $90.52
+22:30:11 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:30:12 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:30:12 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:31:12 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.56 | PnL: $+15.51
+22:31:12 [INFO    ] 🎯 Trailing Stop: $90.52 → $90.52
+22:31:12 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:31:12 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:31:12 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:32:12 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.55 | PnL: $+15.18
+22:33:13 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.72 | PnL: $+20.79
+22:33:13 [INFO    ] 🎯 Trailing Stop: $90.52 → $90.68
+22:33:13 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:33:13 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:33:13 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:34:13 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.72 | PnL: $+20.79
+22:34:13 [INFO    ] 🎯 Trailing Stop: $90.68 → $90.68
+22:34:13 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:34:14 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:34:14 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:35:14 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.72 | PnL: $+20.79
+22:35:14 [INFO    ] 🎯 Trailing Stop: $90.68 → $90.68
+22:35:14 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:35:14 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:35:14 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:36:14 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.74 | PnL: $+21.45
+22:36:14 [INFO    ] 🎯 Trailing Stop: $90.68 → $90.70
+22:36:14 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:36:15 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:36:15 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:37:15 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.74 | PnL: $+21.45
+22:37:15 [INFO    ] 🎯 Trailing Stop: $90.70 → $90.70
+22:37:15 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:37:15 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+22:37:15 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+22:38:15 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.60 | PnL: $+16.83
+22:39:16 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.60 | PnL: $+16.83
+22:40:16 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.58 | PnL: $+16.17
+22:41:16 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.58 | PnL: $+16.17
+22:42:17 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.55 | PnL: $+15.18
+22:43:17 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.52 | PnL: $+14.19
+22:44:18 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.51 | PnL: $+13.86
+22:45:19 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.53 | PnL: $+14.52
+22:46:19 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.60 | PnL: $+16.83
+22:47:20 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.61 | PnL: $+17.16
+22:48:20 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.09 | Harga: $91.55 | PnL: $+15.18
