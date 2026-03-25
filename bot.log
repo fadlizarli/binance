@@ -30,3 +30,11 @@
 18:00:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
 18:00:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
 18:00:43 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:01:44 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.62 | PnL: $+22.44
+18:01:44 [INFO    ] 🎯 Trailing Stop: $91.73 → $91.80
+18:01:44 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:01:44 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:01:44 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:02:44 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.61 | PnL: $+22.10
+18:03:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.61 | PnL: $+22.10
+18:04:45 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.56 | PnL: $+20.40
