@@ -1,0 +1,32 @@
+17:58:39 [INFO    ] 🚀 MODE LIVE TRADING
+17:58:39 [WARNING ] ⚠️  Pastikan sudah test di TESTNET sebelum live!
+17:58:39 [INFO    ] Config: SOLUSDT | 1h | trend_following | Leverage 3x | Mode: TESTNET
+17:58:41 [INFO    ] ✅ Terhubung ke Binance TESTNET
+17:58:41 [INFO    ] 🤖 BotEngine inisialisasi
+17:58:41 [INFO    ]    Mode      : TESTNET
+17:58:41 [INFO    ]    Symbol    : SOLUSDT
+17:58:41 [INFO    ]    Timeframe : 1h
+17:58:41 [INFO    ]    Strategi  : TREND_FOLLOWING
+17:58:41 [INFO    ]    Leverage  : 3x
+17:58:42 [INFO    ] Leverage SOLUSDT: 3x
+17:58:42 [INFO    ] 💰 High watermark: $5,166.50
+17:58:42 [INFO    ] 💰 Balance: $5,166.50 USDT
+17:58:42 [INFO    ] ♻️  Recovery posisi: LONG SOLUSDT @ $91.96 | Qty:34.0 | SL:$90.58 TP:$94.72
+17:58:42 [INFO    ] =======================================================
+17:58:42 [INFO    ] 🚀 BOT DIMULAI — Tekan Ctrl+C untuk berhenti
+17:58:42 [INFO    ] =======================================================
+17:58:42 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.57 | PnL: $+20.74
+17:58:42 [INFO    ] 🎯 Trailing Stop: $90.58 → $91.69
+17:58:42 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+17:58:42 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+17:58:42 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+17:59:43 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.61 | PnL: $+22.10
+17:59:43 [INFO    ] 🎯 Trailing Stop: $91.69 → $91.73
+17:59:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+17:59:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+17:59:43 [ERROR   ] ❌ SL gagal dipasang — dikelola software
+18:00:43 [INFO    ] 📌 Posisi LONG SOLUSDT | Entry: $91.96 | Harga: $92.61 | PnL: $+22.10
+18:00:43 [INFO    ] 🎯 Trailing Stop: $91.73 → $91.73
+18:00:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:00:43 [WARNING ] SL attempt gagal: APIError(code=-4120): Order type not supported for this endpoint. Please use the Algo Order API endpoints instead.
+18:00:43 [ERROR   ] ❌ SL gagal dipasang — dikelola software
