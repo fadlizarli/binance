@@ -28,5 +28,5 @@ class TrendFollowingStrategy(BaseStrategy):
         if ind.rsi_divergence == "BEAR_DIV" and sl > ss: return self._wait("Bearish divergence ⚠️")
 
         if sl >= 5 and sl > ss: return self._make_signal("LONG", min(sl/9, 1.0), " | ".join(r))
-        if ss >= 5 and ss > sl: return self._make_signal("SHORT", min(ss/9, 1.0), "Bearish " + " | ".join(r))
+        if ss >= 7 and ss > sl: return self._make_signal("SHORT", min(ss/9, 1.0), "Bearish " + " | ".join(r))
         return self._wait(f"Score kurang (L:{sl} S:{ss})")

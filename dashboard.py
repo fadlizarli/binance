@@ -143,7 +143,7 @@ def enrich_with_binance(state):
                 wallet = float(b["balance"])
                 if wallet > 0:
                     state["balance"]   = wallet
-                    state["total_pnl"] = round(wallet - 5000.0, 2)
+                    state["total_pnl"] = round(wallet - 31.12, 2)
                 break
     except:
         pass

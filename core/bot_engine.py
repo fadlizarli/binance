@@ -14,6 +14,7 @@ from exchange.binance_client import BinanceClient
 from risk.manager import RiskManager
 from strategies import get_strategy, Signal
 from utils.logger import logger, trade_logger
+from utils.claude_filter import claude_validate
 from utils.notifier import TelegramNotifier
 
 
@@ -194,6 +195,16 @@ class BotEngine:
                 logger.debug(f"⚠️ HTF Neutral — lanjut dengan hati-hati")
         except:
             pass
+
+        # Claude API Filter
+        if self.cfg.notification.claude_filter_enabled and self.cfg.notification.anthropic_api_key:
+            approved = claude_validate(
+                signal.action, ind,
+                self.cfg.notification.anthropic_api_key,
+                min_confidence=6
+            )
+            if not approved:
+                return
 
         self._open_position(signal, risk_calc, ind.atr)
 

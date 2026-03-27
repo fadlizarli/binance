@@ -33,6 +33,8 @@ class RiskConfig:
 class NotificationConfig:
     telegram_token:   str = field(default_factory=lambda: os.getenv("TELEGRAM_BOT_TOKEN", ""))
     telegram_chat_id: str = field(default_factory=lambda: os.getenv("TELEGRAM_CHAT_ID", ""))
+    anthropic_api_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
+    claude_filter_enabled: bool = field(default_factory=lambda: os.getenv("CLAUDE_FILTER_ENABLED", "false").lower() == "true")
 
     @property
     def telegram_enabled(self): return bool(self.telegram_token and self.telegram_chat_id)
