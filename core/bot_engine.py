@@ -136,23 +136,69 @@ class BotEngine:
             self._manage_position(ind)
             return
 
+        # Fear & Greed Filter (cache 30 menit)
+        try:
+            import requests as _req, time as _time
+            _fg_cache = getattr(self, '_fg_cache', {"time": 0, "value": 50, "label": "Neutral"})
+            if _time.time() - _fg_cache["time"] > 1800:  # 30 menit
+                _r = _req.get("https://api.alternative.me/fng/", timeout=5)
+                _d = _r.json()["data"][0]
+                _fg_cache = {"time": _time.time(), "value": int(_d["value"]), "label": _d["value_classification"]}
+                self._fg_cache = _fg_cache
+                logger.info(f"😨 Fear & Greed update: {_fg_cache['value']} ({_fg_cache['label']})")
+            fg_value = _fg_cache["value"]
+            fg_label = _fg_cache["label"]
+            logger.debug(f"😨 Fear & Greed: {fg_value} ({fg_label})")
+
+            if fg_value < 20:
+                logger.info(f"⛔ Extreme Fear ({fg_value}) — skip entry, pasar panik!")
+                return
+            if fg_value > 80:
+                logger.info(f"⛔ Extreme Greed ({fg_value}) — skip entry, pasar euforia!")
+                return
+            if fg_value < 35:
+                logger.info(f"⚠️ Fear ({fg_value}) — butuh Claude ≥ 8 untuk entry")
+                # Naikkan min confidence saat Fear
+                self._fg_min_confidence = 8
+            else:
+                self._fg_min_confidence = 7
+        except Exception as e:
+            logger.debug(f"Fear & Greed tidak tersedia: {e}")
+            self._fg_min_confidence = 7
+
         # Filter jam trading — hanya entry jam 14:00-23:00 WIB
         from datetime import datetime
         import pytz
         wib  = pytz.timezone("Asia/Jakarta")
         hour = datetime.now(wib).hour
-        if not (14 <= hour <= 23):
+        if not (14 <= hour < 23):
             logger.debug(f"⏰ Di luar jam trading ({hour}:00 WIB) — skip entry")
             return
 
         # HTF Filter — cek trend 4h sebelum entry di 1h
+        htf_trend = "NEUTRAL"  # default aman
         try:
             df_4h = self.exchange.get_klines(symbol, "4h", limit=100)
             if df_4h is not None:
                 ind_4h = self.indicators.calculate(df_4h)
                 if ind_4h is not None:
-                    htf_trend = ind_4h.ema_trend  # BULLISH/BEARISH/NEUTRAL
-                    logger.debug(f"📊 HTF 4h Trend: {htf_trend}")
+                    ema_trend_4h = ind_4h.ema_trend
+                    macd_4h = getattr(ind_4h, 'macd_line', 0)
+                    hist_4h = getattr(ind_4h, 'macd_hist', 0)
+                    # EMA aligned → pakai EMA
+                    if ema_trend_4h == "BEARISH":
+                        htf_trend = "BEARISH"
+                    elif ema_trend_4h == "BULLISH":
+                        htf_trend = "BULLISH"
+                    # EMA NEUTRAL → fallback ke MACD 4H
+                    elif macd_4h < -0.3 and hist_4h < -0.05:
+                        htf_trend = "BEARISH"
+                    elif macd_4h > 0.3 and hist_4h > 0.05:
+                        htf_trend = "BULLISH"
+                    else:
+                        htf_trend = "NEUTRAL"
+                    ind.htf_trend = htf_trend
+                    logger.debug(f"📊 HTF 4h Trend: {htf_trend} (EMA:{ema_trend_4h} MACD:{macd_4h:.2f} Hist:{hist_4h:.2f})")
         except Exception as e:
             logger.warning(f"HTF check gagal: {e}")
             htf_trend = "NEUTRAL"
@@ -183,6 +229,31 @@ class BotEngine:
             logger.warning(f"⛔ Risk tidak valid: {risk_calc.reason}")
             return
 
+        # LONG ONLY mode — auto berdasarkan HTF
+        import os
+        long_only_env = os.getenv("LONG_ONLY", "false").lower() == "true"
+        htf = htf_trend
+
+        # Auto: kalau HTF BULLISH atau NEUTRAL → paksa LONG ONLY
+        # Override .env kalau HTF sudah jelas BEARISH
+        if htf in ("BULLISH", "NEUTRAL"):
+            long_only_effective = True
+        elif htf == "BEARISH":
+            # SHORT hanya kalau RSI > 50 (momentum turun terkonfirmasi)
+            rsi = getattr(ind, "rsi", 50)
+            if not long_only_env and rsi > 50:
+                long_only_effective = False
+                logger.info(f"📉 HTF BEARISH + RSI {rsi:.0f} → SHORT diizinkan")
+            else:
+                long_only_effective = True
+                logger.info(f"⚠️ HTF BEARISH tapi RSI {rsi:.0f} < 50 → tetap LONG ONLY")
+        else:
+            long_only_effective = long_only_env
+
+        if long_only_effective and signal.action == "SHORT":
+            logger.info(f"⛔ LONG ONLY (HTF={htf}) — skip SHORT")
+            return
+
         # Validasi HTF — hanya entry searah trend 4h
         try:
             if htf_trend == "BULLISH" and signal.action == "SHORT":
@@ -192,19 +263,94 @@ class BotEngine:
                 logger.info(f"⛔ HTF Filter: Trend 4h BEARISH — skip LONG")
                 return
             if htf_trend == "NEUTRAL":
-                logger.debug(f"⚠️ HTF Neutral — lanjut dengan hati-hati")
+                if signal.action == "SHORT":
+                    logger.info(f"⛔  HTF NEUTRAL — skip SHORT (hindari melawan potensi bullish)")
+                    return
+                logger.debug(f"⚠️ HTF Neutral — hanya LONG diizinkan")
         except:
             pass
+
+        # Simpan htf_trend ke ind agar Claude bisa akses
+        try:
+            ind.htf_trend = htf_trend
+        except:
+            pass
+
+        # Consecutive loss protection
+        try:
+            import csv as _csv, os as _os, glob as _glob, re as _re
+            BASE_DIR = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+            # Baca dari log langsung — lebih akurat
+            _trades = []
+            for _lf in sorted(_glob.glob(_os.path.join(BASE_DIR, "logs", "cryptobot_*.log"))):
+                with open(_lf) as _f:
+                    _lines = _f.readlines()
+                _i = 0
+                while _i < len(_lines):
+                    _l = _lines[_i].strip()
+                    if "POSISI DITUTUP" in _l:
+                        _reason = "WIN" if "TAKE_PROFIT" in _l else "UNKNOWN"
+                        if _i + 1 < len(_lines):
+                            _d = _lines[_i+1].strip()
+                            _pm = _re.search(r"PnL: \$([+-]?[\d.]+)", _d)
+                            if _pm:
+                                _pnl = float(_pm.group(1))
+                                _trades.append("WIN" if _pnl > 0 else "LOSS")
+                    _i += 1
+            if _trades:
+                _consecutive = 0
+                for _r in reversed(_trades):
+                    if _r == "LOSS": _consecutive += 1
+                    else: break
+                if _consecutive >= 3:
+                    logger.info(f"⛔ {_consecutive} loss berturut — skip entry hari ini")
+                    return
+                elif _consecutive == 2:
+                    logger.info(f"⚠️ {_consecutive} loss berturut — extra hati-hati")
+        except Exception as _e:
+            logger.debug(f"Loss protection error: {_e}")
+
+        # Filter volume minimum
+        vol_ratio = getattr(ind, 'volume_ratio', 1.0)
+        if vol_ratio < 0.3:
+            logger.info(f"⛔ Volume terlalu rendah ({vol_ratio:.2f}x) — skip entry")
+            return
 
         # Claude API Filter
         if self.cfg.notification.claude_filter_enabled and self.cfg.notification.anthropic_api_key:
             approved = claude_validate(
                 signal.action, ind,
                 self.cfg.notification.anthropic_api_key,
-                min_confidence=6
+                min_confidence=getattr(self, '_fg_min_confidence', 7)
             )
             if not approved:
                 return
+            # Simpan confidence untuk dynamic sizing
+            try:
+                from utils.claude_filter import _get_last_confidence
+                self._last_claude_conf = _get_last_confidence()
+            except:
+                self._last_claude_conf = 7
+
+        # Dynamic position sizing berdasarkan Claude confidence
+        claude_conf = getattr(self, '_last_claude_conf', 7)
+        if claude_conf >= 9:
+            dynamic_risk = 1.25
+            logger.info(f"💪 Dynamic Risk: {dynamic_risk}% (Claude {claude_conf}/10 — sinyal kuat!)")
+        else:
+            dynamic_risk = 0.75
+            logger.info(f"📊 Dynamic Risk: {dynamic_risk}% (Claude {claude_conf}/10 — normal)")
+
+        # Recalculate dengan dynamic risk
+        orig_risk = self.cfg.risk.risk_per_trade
+        self.cfg.risk.risk_per_trade = dynamic_risk
+        risk_calc = self.risk_manager.calculate_position(
+            side=signal.action,
+            entry_price=ind.close,
+            atr=ind.atr,
+            balance=self.balance,
+        )
+        self.cfg.risk.risk_per_trade = orig_risk  # restore
 
         self._open_position(signal, risk_calc, ind.atr)
 
@@ -213,6 +359,11 @@ class BotEngine:
         side     = signal.action
         buy_sell = "BUY" if side == "LONG" else "SELL"
 
+        # Log detail untuk analisis
+        _atr_pct = round(atr / risk_calc.entry_price * 100, 2) if atr and risk_calc.entry_price else 0
+        _claude_conf = getattr(self, '_last_claude_conf', 0)
+        _strength = getattr(signal, 'strength', 0)
+        logger.info(f"📊 ENTRY DETAIL | ATR: {_atr_pct}% | Claude: {_claude_conf}/10 | Strength: {_strength:.2f}")
         logger.info(f"📥 Membuka posisi {side} | {symbol}")
         logger.info(
             f"   Entry: ${risk_calc.entry_price:,.2f} | "
@@ -270,6 +421,7 @@ class BotEngine:
             side, symbol, actual_entry,
             risk_calc.stop_loss, risk_calc.take_profit,
             risk_calc.risk_amount, self.strategy.name,
+            mode=self.cfg.api.trade_mode,
         )
 
     def _close_position(self, reason: str):
@@ -300,6 +452,28 @@ class BotEngine:
             f"Entry:{pos.entry_price:.2f} | Exit:{current_price:.2f} | "
             f"PnL:{pnl:.4f} | Reason:{reason}"
         )
+        # Simpan ke CSV untuk analisis
+        try:
+            import csv, os
+            csv_path = os.path.join(self.cfg.log_dir, "trade_analysis.csv")
+            file_exists = os.path.exists(csv_path)
+            with open(csv_path, 'a', newline='') as csvf:
+                writer = csv.writer(csvf)
+                if not file_exists:
+                    writer.writerow([
+                        "date","side","symbol","entry","exit","pnl",
+                        "reason","result","balance"
+                    ])
+                writer.writerow([
+                    datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    pos.side, pos.symbol,
+                    pos.entry_price, current_price,
+                    round(pnl, 4), reason,
+                    "WIN" if pnl > 0 else "LOSS",
+                    round(self.balance, 2)
+                ])
+        except Exception as e:
+            logger.debug(f"CSV save error: {e}")
         self.notifier.notify_exit(pos.side, pos.symbol, pos.entry_price, current_price, pnl, reason)
         self.open_position = None
 
@@ -340,7 +514,7 @@ class BotEngine:
                 pos.sl_order_id = str(sl_order.get("orderId", ""))
 
         # Trailing Stop
-        new_sl = self.risk_manager.calculate_trailing_stop(pos.side, price, pos.stop_loss, pos.entry_price, ind.atr)
+        new_sl = self.risk_manager.calculate_trailing_stop(pos.side, price, pos.stop_loss, pos.entry_price, ind.atr, pos.take_profit)
         if new_sl:
             old_sl = pos.stop_loss
             pos.stop_loss = new_sl
@@ -365,7 +539,14 @@ class BotEngine:
             wins      = sum(1 for t in self.trade_history if t.final_pnl > 0)
             total     = len(self.trade_history)
             daily_pnl = sum(t.final_pnl for t in self.trade_history)
-            self.notifier.notify_daily_summary(total, wins, daily_pnl, self.balance)
+            # Ambil balance fresh dari Binance untuk summary
+            try:
+                fresh_balance = self.exchange.get_account_balance() or self.balance
+            except:
+                fresh_balance = self.balance
+            self.notifier.notify_daily_summary(total, wins, daily_pnl, fresh_balance)
+            # Reset trade history untuk hari baru
+            self.trade_history = []
 
     def _print_summary(self):
         total     = len(self.trade_history)

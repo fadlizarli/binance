@@ -1,0 +1,76 @@
+cd ~/binance
+python3 << 'EOF'
+import glob, re
+
+# Ambil semua trade yang benar-benar terjadi dari log
+trades = []
+files = sorted(glob.glob("logs/cryptobot_*.log"))
+for path in files:
+    with open(path) as f:
+        lines = f.readlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if "POSISI DITUTUP" in line:
+            date = line[:19]
+            reason = "TAKE_PROFIT" if "TAKE_PROFIT" in line else "STOP_LOSS"
+            if i + 1 < len(lines):
+                detail = lines[i+1].strip()
+                side = "LONG" if "LONG" in detail else "SHORT"
+                em = re.search(r"Entry: \$([\d.]+)", detail)
+                xm = re.search(r"Exit: \$([\d.]+)", detail)
+                pm = re.search(r"PnL: \$([+-]?[\d.]+)", detail)
+                if em and xm:
+                    pnl = float(pm.group(1)) if pm else 0
+                    pnl = round(pnl/3 if date < "2026-03-21" else pnl, 2)
+                    trades.append({"date": date, "side": side,
+                        "entry": float(em.group(1)), "exit": float(xm.group(1)),
+                        "pnl": pnl, "reason": reason})
+        i += 1
+
+live = [t for t in trades if t["date"] >= "2026-03-27"]
+wins = [t for t in live if t["pnl"] > 0]
+losses = [t for t in live if t["pnl"] <= 0]
+longs = [t for t in live if t["side"] == "LONG"]
+shorts = [t for t in live if t["side"] == "SHORT"]
+lw = [t for t in longs if t["pnl"] > 0]
+sw = [t for t in shorts if t["pnl"] > 0]
+
+print("=" * 50)
+print("HASIL AKTUAL (dengan filter yang sudah ada)")
+print("=" * 50)
+print(f"Total trade  : {len(live)}")
+print(f"Win / Loss   : {len(wins)}W {len(losses)}L")
+print(f"Win Rate     : {len(wins)/len(live)*100:.1f}%")
+print(f"Total PnL    : ${sum(t['pnl'] for t in live):+.2f}")
+aw = sum(t['pnl'] for t in wins)/len(wins) if wins else 0
+al = sum(t['pnl'] for t in losses)/len(losses) if losses else 0
+print(f"Avg Win      : ${aw:.2f}")
+print(f"Avg Loss     : ${al:.2f}")
+print(f"R:R          : {abs(aw/al):.2f}" if al else "R:R: N/A")
+print(f"\nLONG  : {len(longs)}T | WR {len(lw)/len(longs)*100:.0f}%" if longs else "")
+print(f"SHORT : {len(shorts)}T | WR {len(sw)/len(shorts)*100:.0f}%" if shorts else "")
+
+# Simulasi kalau SHORT diblokir dari awal
+long_only = [t for t in live if t["side"] == "LONG"]
+lonly_wins = [t for t in long_only if t["pnl"] > 0]
+lonly_losses = [t for t in long_only if t["pnl"] <= 0]
+law = sum(t['pnl'] for t in lonly_wins)/len(lonly_wins) if lonly_wins else 0
+lal = sum(t['pnl'] for t in lonly_losses)/len(lonly_losses) if lonly_losses else 0
+
+print()
+print("=" * 50)
+print("SIMULASI: Kalau LONG ONLY dari awal")
+print("=" * 50)
+print(f"Total trade  : {len(long_only)}")
+print(f"Win / Loss   : {len(lonly_wins)}W {len(lonly_losses)}L")
+print(f"Win Rate     : {len(lonly_wins)/len(long_only)*100:.1f}%" if long_only else "")
+print(f"Total PnL    : ${sum(t['pnl'] for t in long_only):+.2f}")
+print(f"Avg Win      : ${law:.2f}")
+print(f"Avg Loss     : ${lal:.2f}")
+print(f"R:R          : {abs(law/lal):.2f}" if lal else "R:R: N/A")
+print(f"\nKalau LONG ONLY dari awal:")
+diff = sum(t['pnl'] for t in long_only) - sum(t['pnl'] for t in live)
+print(f"Selisih PnL  : ${diff:+.2f}")
+print(f"SHORT removed: {len(shorts)} trade ({sum(t['pnl'] for t in shorts):+.2f})")
+EOF

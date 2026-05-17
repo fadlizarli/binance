@@ -19,6 +19,7 @@ class TradingConfig:
     leverage:  int = field(default_factory=lambda: int(os.getenv("LEVERAGE", "5")))
     strategy:  str = field(default_factory=lambda: os.getenv("STRATEGY", "trend_following"))
 
+
 @dataclass
 class RiskConfig:
     risk_per_trade:      float = field(default_factory=lambda: float(os.getenv("RISK_PER_TRADE", "1.0")))

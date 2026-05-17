@@ -49,8 +49,8 @@ class RiskManager:
 
         # Sesuaikan presisi quantity berdasarkan harga aset
         if entry_price >= 10000: quantity = round(quantity, 3)   # BTC
-        elif entry_price >= 100: quantity = round(quantity, 1)   # ETH, SOL
-        elif entry_price >= 1:   quantity = round(quantity, 0)   # DOGE dll
+        elif entry_price >= 10:  quantity = round(quantity, 1)   # SOL, ETH
+        elif entry_price >= 1:   quantity = round(quantity, 1)   # DOGE dll
         else:                    quantity = round(quantity, 0)
 
         sl_pct    = (sl_distance / entry_price) * 100
@@ -93,16 +93,43 @@ class RiskManager:
 
         return True, "OK"
 
-    def calculate_trailing_stop(self, side, price, current_sl, entry_price, atr) -> Optional[float]:
+    def calculate_trailing_stop(self, side, price, current_sl, entry_price, atr, take_profit=None) -> Optional[float]:
         if not self.risk_cfg.trailing_stop_enabled:
             return None
+
+        # Hitung progress ke TP (0.0 - 1.0)
+        if take_profit:
+            if side == "LONG":
+                total    = take_profit - entry_price
+                progress = (price - entry_price) / total if total > 0 else 0
+            else:
+                total    = entry_price - take_profit
+                progress = (entry_price - price) / total if total > 0 else 0
+        else:
+            progress = 0
+
+        # Belum 50% ke TP → jangan aktifkan trailing
+        if progress < 0.5:
+            return None
+
+        # Dynamic multiplier berdasarkan progress ke TP
+        # Semakin dekat ke TP → trailing semakin ketat
+        if progress >= 0.90:
+            multiplier = 0.5   # sangat dekat TP → sangat ketat
+        elif progress >= 0.75:
+            multiplier = 0.8   # dekat TP → ketat
+        elif progress >= 0.60:
+            multiplier = 1.2   # lewat 60% → agak ketat
+        else:
+            multiplier = 2.0   # baru 50% → longgar
+
         if side == "LONG":
-            new_sl = price - atr * self.risk_cfg.sl_atr_multiplier
-            if new_sl > current_sl and price > entry_price * 1.005:
+            new_sl = price - atr * multiplier
+            if new_sl > current_sl:
                 return round(new_sl, 2)
         else:
-            new_sl = price + atr * self.risk_cfg.sl_atr_multiplier
-            if new_sl < current_sl and price < entry_price * 0.995:
+            new_sl = price + atr * multiplier
+            if new_sl < current_sl:
                 return round(new_sl, 2)
         return None
 

@@ -1,0 +1,91 @@
+cd ~/binance
+python3 << 'EOF'
+import glob, re
+
+# Kumpulkan semua sinyal dari log
+signals = []
+files = sorted(glob.glob("logs/cryptobot_*.log"))
+
+for path in files:
+    with open(path) as f:
+        lines = f.readlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        # Cari sinyal yang masuk
+        m = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*Sinyal: (LONG|SHORT) \(strength: ([\d.]+)\)", line)
+        if m:
+            date = m.group(1)
+            side = m.group(2)
+            strength = float(m.group(3))
+            # Cari RSI
+            rsi = 50
+            for j in range(max(0, i-5), i+5):
+                rm = re.search(r"RSI\s*:\s*([\d.]+)", lines[j])
+                if rm: rsi = float(rm.group(1)); break
+            # Cari HTF
+            htf = "NEUTRAL"
+            for j in range(max(0, i-5), i):
+                hm = re.search(r"HTF 4h Trend: (\w+)", lines[j])
+                if hm: htf = hm.group(1); break
+            # Cari volume
+            vol = 1.0
+            for j in range(max(0, i-5), i+5):
+                vm = re.search(r"Vol\s*:\s*([\d.]+)x", lines[j])
+                if vm: vol = float(vm.group(1)); break
+            # Cari Claude confidence
+            conf = 0
+            for j in range(i, min(len(lines), i+10)):
+                cm = re.search(r"Confidence: (\d+)/10", lines[j])
+                if cm: conf = int(cm.group(1)); break
+            signals.append({
+                "date": date, "side": side, "strength": strength,
+                "rsi": rsi, "htf": htf, "vol": vol, "conf": conf
+            })
+        i += 1
+
+print(f"Total sinyal ditemukan: {len(signals)}")
+
+# Terapkan filter sekarang
+def apply_filters(s):
+    # Filter LONG ONLY (HTF based)
+    if s["htf"] in ("BULLISH", "NEUTRAL") and s["side"] == "SHORT":
+        return False, "LONG ONLY (HTF)"
+    if s["htf"] == "BEARISH" and s["side"] == "SHORT" and s["rsi"] < 50:
+        return False, "BEARISH tapi RSI < 50"
+    # Filter RSI overbought
+    if s["rsi"] > 75 and s["side"] == "LONG":
+        return False, "RSI overbought"
+    # Filter strength
+    if s["strength"] < 0.55:
+        return False, "Strength kurang"
+    # Filter Claude
+    if s["conf"] > 0 and s["conf"] < 7:
+        return False, "Claude < 7"
+    return True, "PASS"
+
+passed = []
+skipped = []
+skip_reasons = {}
+
+for s in signals:
+    ok, reason = apply_filters(s)
+    if ok:
+        passed.append(s)
+    else:
+        skipped.append(s)
+        skip_reasons[reason] = skip_reasons.get(reason, 0) + 1
+
+print(f"\nDengan filter sekarang:")
+print(f"Sinyal MASUK : {len(passed)}")
+print(f"Sinyal SKIP  : {len(skipped)}")
+print(f"\nAlasan skip:")
+for r, c in sorted(skip_reasons.items(), key=lambda x: -x[1]):
+    print(f"  {r}: {c}x")
+
+print(f"\nBreakdown sinyal masuk:")
+long_pass = [s for s in passed if s["side"] == "LONG"]
+short_pass = [s for s in passed if s["side"] == "SHORT"]
+print(f"  LONG : {len(long_pass)}")
+print(f"  SHORT: {len(short_pass)}")
+EOF

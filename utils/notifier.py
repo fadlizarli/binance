@@ -1,11 +1,27 @@
+import os
 import requests
 from utils.logger import logger
 
 class TelegramNotifier:
     def __init__(self, token: str, chat_id: str):
-        self.token   = token
-        self.chat_id = chat_id
+        self.token      = token
+        self.chat_id    = chat_id
+        self.channel_id = os.getenv("TELEGRAM_CHANNEL_ID", "")
         self.enabled = bool(token and chat_id)
+
+    def send_channel(self, message: str) -> bool:
+        if not self.channel_id:
+            return False
+        try:
+            import requests
+            r = requests.post(
+                f"https://api.telegram.org/bot{self.token}/sendMessage",
+                json={"chat_id": self.channel_id, "text": message, "parse_mode": "HTML"},
+                timeout=10
+            )
+            return r.status_code == 200
+        except:
+            return False
 
     def send(self, message: str) -> bool:
         if not self.enabled:
@@ -21,17 +37,20 @@ class TelegramNotifier:
             logger.warning(f"Telegram error: {e}")
             return False
 
-    def notify_entry(self, side, symbol, entry, sl, tp, risk, strategy):
+    def notify_entry(self, side, symbol, entry, sl, tp, risk, strategy, mode="LIVE"):
         emoji = "🟢" if side == "LONG" else "🔴"
-        self.send(
+        mode_label = "🔴 LIVE" if mode == "live" else "🧪 TESTNET"
+        msg = (
             f"{emoji} <b>ENTRY {side}</b>\n"
-            f"📊 <b>{symbol}</b>\n"
+            f"📊 <b>{symbol}</b> | {mode_label}\n"
             f"📍 Entry : <code>${entry:,.2f}</code>\n"
             f"🛑 SL    : <code>${sl:,.2f}</code>\n"
             f"🎯 TP    : <code>${tp:,.2f}</code>\n"
             f"💰 Risk  : <code>${risk:.2f}</code>\n"
             f"🧠 Strat : <code>{strategy}</code>"
         )
+        self.send(msg)
+        self.send_channel(msg)
 
     def notify_exit(self, side, symbol, entry, exit_price, pnl, reason):
         emoji = "✅" if pnl > 0 else "❌"

@@ -15,7 +15,7 @@ class TrendFollowingStrategy(BaseStrategy):
             else: ss += 2
         elif dist > 3.0: return self._wait(f"Terlalu jauh dari EMA21 ({dist:.2f}%)")
 
-        if ind.macd_line > 0: sl += 1
+        if ind.macd_line > 0: sl += 1; r.append(f"MACD positif ({ind.macd_line:.2f}) ✅")
         elif ind.macd_line < 0: ss += 1
         if ind.macd_cross == "BULLISH_CROSS": sl += 2; r.append("MACD bullish cross 🔥")
         elif ind.macd_cross == "BEARISH_CROSS": ss += 2
@@ -25,6 +25,14 @@ class TrendFollowingStrategy(BaseStrategy):
         elif ind.rsi > 75: return self._wait(f"RSI overbought ({ind.rsi:.1f})")
 
         if ind.volume_signal == "HIGH": sl += 1; ss += 1; r.append("Volume tinggi 💪")
+
+        # Candlestick pattern bonus
+        if ind.hammer:
+            sl += 1; r.append("Hammer 🔨")
+        if ind.engulfing == "BULLISH":
+            sl += 2; r.append("Bullish Engulfing 🕯️")
+        if ind.engulfing == "BEARISH":
+            ss += 2; r.append("Bearish Engulfing 🕯️")
         if ind.rsi_divergence == "BEAR_DIV" and sl > ss: return self._wait("Bearish divergence ⚠️")
 
         if sl >= 5 and sl > ss: return self._make_signal("LONG", min(sl/9, 1.0), " | ".join(r))

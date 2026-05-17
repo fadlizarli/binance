@@ -1,0 +1,38 @@
+# PANDUAN AKTIVASI MULTI-PAIR
+# Ikuti langkah ini saat sudah siap (modal $100+, profit konsisten 1 bulan)
+
+## LANGKAH 1 — Backup file lama
+cp ~/binance/core/bot_engine.py ~/binance/core/bot_engine_singlepair_backup.py
+cp ~/binance/config/settings.py ~/binance/config/settings_singlepair_backup.py
+cp ~/binance/main.py ~/binance/main_singlepair_backup.py
+
+## LANGKAH 2 — Copy file baru
+cp bot_engine_multipair.py ~/binance/core/bot_engine.py
+cp config_settings_multipair.py ~/binance/config/settings.py
+cp main_multipair.py ~/binance/main.py
+
+## LANGKAH 3 — Update .env
+nano ~/binance/.env
+# Ganti: SYMBOL=SOLUSDT
+# Dengan: SYMBOLS=SOLUSDT,DOGEUSDT
+
+## LANGKAH 4 — Test dulu dengan testnet
+# Di .env: TRADE_MODE=testnet
+# Jalankan manual dulu:
+cd ~/binance
+source venv/bin/activate
+python main.py
+
+## LANGKAH 5 — Kalau testnet OK, aktifkan live
+# Di .env: TRADE_MODE=live
+sudo systemctl restart cryptobot
+
+## LANGKAH 6 — Monitor
+tail -f ~/binance/logs/cryptobot_$(date +%Y%m%d).log
+
+## ROLLBACK (kalau ada masalah)
+cp ~/binance/core/bot_engine_singlepair_backup.py ~/binance/core/bot_engine.py
+cp ~/binance/config/settings_singlepair_backup.py ~/binance/config/settings.py
+cp ~/binance/main_singlepair_backup.py ~/binance/main.py
+sudo systemctl restart cryptobot
+

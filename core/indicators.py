@@ -14,6 +14,8 @@ class IndicatorResult:
     atr: float = 0.0; atr_percent: float = 0.0
     volume_ratio: float = 1.0; volume_signal: str = "NORMAL"
     close: float = 0.0; high: float = 0.0; low: float = 0.0
+    hammer: bool = False
+    engulfing: str = "NONE"  # BULLISH, BEARISH, NONE
 
 class IndicatorEngine:
     def __init__(self): self.last_result = None
@@ -43,6 +45,8 @@ class IndicatorEngine:
             r.volume_ratio = round(v.iloc[-1] / v.rolling(20).mean().iloc[-1], 2) if v.rolling(20).mean().iloc[-1] else 1.0
             r.volume_signal = "HIGH" if r.volume_ratio >= 1.5 else "LOW" if r.volume_ratio <= 0.6 else "NORMAL"
             r.close, r.high, r.low = c.iloc[-1], h.iloc[-1], l.iloc[-1]
+            r.hammer    = self._detect_hammer(df)
+            r.engulfing = self._detect_engulfing(df)
             self.last_result = r
         except Exception as e:
             from utils.logger import logger
@@ -111,6 +115,43 @@ class IndicatorEngine:
         tr = pd.concat([h-l,(h-pc).abs(),(l-pc).abs()],axis=1).max(axis=1)
         return round(tr.rolling(p).mean().iloc[-1], 6)
 
+    @staticmethod
+    def _detect_hammer(df) -> bool:
+        """Hammer: body kecil di atas, shadow bawah panjang = bullish reversal"""
+        if len(df) < 2: return False
+        c = df.iloc[-1]
+        body   = abs(c.close - c.open)
+        shadow = c.high - c.low
+        lower  = min(c.open, c.close) - c.low
+        if shadow == 0 or body == 0: return False
+        # Shadow bawah >= 2x body, body <= 30% total shadow
+        return (lower >= body * 2.0 and
+                body / shadow <= 0.35 and
+                c.close > c.open)  # candle hijau lebih valid
+
+    @staticmethod
+    def _detect_engulfing(df) -> str:
+        """Engulfing: candle besar menutupi candle sebelumnya = reversal kuat"""
+        if len(df) < 2: return "NONE"
+        c1 = df.iloc[-2]  # candle sebelumnya
+        c2 = df.iloc[-1]  # candle sekarang
+
+        # Bullish engulfing: c1 merah, c2 hijau besar menutupi c1
+        if (c1.close < c1.open and
+            c2.close > c2.open and
+            c2.open  <= c1.close and
+            c2.close >= c1.open):
+            return "BULLISH"
+
+        # Bearish engulfing: c1 hijau, c2 merah besar menutupi c1
+        if (c1.close > c1.open and
+            c2.close < c2.open and
+            c2.open  >= c1.close and
+            c2.close <= c1.open):
+            return "BEARISH"
+
+        return "NONE"
+
     def print_summary(self, r: IndicatorResult):
         from utils.logger import logger
         logger.info("="*55)
@@ -120,4 +161,6 @@ class IndicatorEngine:
         logger.info(f"   MACD : {r.macd_line:.4f} hist:{r.macd_hist:.4f} [{r.macd_cross}]")
         logger.info(f"   BB   : {r.bb_lower:.2f}/{r.bb_middle:.2f}/{r.bb_upper:.2f} [{r.bb_position}] Squeeze:{r.bb_squeeze}")
         logger.info(f"   Vol  : {r.volume_ratio:.2f}x [{r.volume_signal}]")
+        if r.hammer or r.engulfing != "NONE":
+            logger.info(f"   Pattern: Hammer={r.hammer} Engulfing={r.engulfing}")
         logger.info("="*55)
