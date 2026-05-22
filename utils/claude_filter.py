@@ -14,7 +14,8 @@ def ask_claude(signal: str, indicators: dict, api_key: str) -> dict:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
 
-        prompt = f"""SOL/USDT futures signal:
+        symbol = indicators.get('symbol', 'CRYPTO')
+        prompt = f"""{symbol} futures signal:
 Signal:{signal} Price:${indicators.get('price',0):.2f}
 EMA:{indicators.get('ema_trend','?')} RSI:{indicators.get('rsi',50):.0f}
 Vol:{indicators.get('volume_ratio',1):.1f}x ({indicators.get('vol_status','NORMAL')})
@@ -110,7 +111,7 @@ def _make_decision(signal: str, result: dict,
 
 
 def claude_validate(signal: str, ind, api_key: str,
-                    min_confidence: int = 7) -> bool:
+                    min_confidence: int = 7, symbol: str = "") -> bool:
     if not api_key:
         return True
 
@@ -141,6 +142,7 @@ def claude_validate(signal: str, ind, api_key: str,
         pattern = getattr(ind, 'engulfing')
 
     indicators = {
+        "symbol"      : symbol or getattr(ind, 'symbol', 'CRYPTO'),
         "price"       : getattr(ind, 'close', 0),
         "ema_trend"   : getattr(ind, 'ema_trend', 'UNKNOWN'),
         "rsi"         : getattr(ind, 'rsi', 50),

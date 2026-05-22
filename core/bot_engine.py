@@ -321,7 +321,8 @@ class BotEngine:
             approved = claude_validate(
                 signal.action, ind,
                 self.cfg.notification.anthropic_api_key,
-                min_confidence=getattr(self, '_fg_min_confidence', 7)
+                min_confidence=getattr(self, '_fg_min_confidence', 7),
+                symbol=self.cfg.trading.symbol,
             )
             if not approved:
                 return

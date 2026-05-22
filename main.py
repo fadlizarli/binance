@@ -80,18 +80,20 @@ def main():
     # --- Mode Backtest ---
     if args.backtest:
         logger.info("🔬 MODE BACKTEST")
-        from backtest import run_backtest, generate_mock_data
+        from backtest import run_backtest, generate_mock_data, precompute_indicators
 
         if args.strategy:
-            data = generate_mock_data(n=args.candles)
-            run_backtest(args.strategy, args.balance, data)
+            raw = generate_mock_data(n=args.candles)
+            ind = precompute_indicators(raw)
+            run_backtest(args.strategy, args.balance, ind, raw)
         else:
             # Test semua strategi
             strategies = ["trend_following", "support_bounce", "breakout", "scalping"]
-            data = generate_mock_data(n=args.candles)
+            raw = generate_mock_data(n=args.candles)
+            ind = precompute_indicators(raw)
             results = []
             for s in strategies:
-                r = run_backtest(s, args.balance, data)
+                r = run_backtest(s, args.balance, ind.copy(), raw)
                 results.append(r)
 
             # Tabel perbandingan
