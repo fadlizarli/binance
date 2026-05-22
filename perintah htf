@@ -1,7 +1,0 @@
-# Matikan LONG ONLY
-sed -i 's/LONG_ONLY=true/LONG_ONLY=false/' ~/binance/.env
-sudo systemctl restart cryptobot
-
-# Aktifkan kembali
-sed -i 's/LONG_ONLY=false/LONG_ONLY=true/' ~/binance/.env
-sudo systemctl restart cryptobot
