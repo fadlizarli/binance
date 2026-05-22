@@ -111,16 +111,16 @@ def _make_decision(signal: str, result: dict,
 
 
 def claude_validate(signal: str, ind, api_key: str,
-                    min_confidence: int = 7, symbol: str = "") -> bool:
+                    min_confidence: int = 7, symbol: str = "",
+                    signal_strength: float = 0.5) -> bool:
     if not api_key:
         return True
 
     now = time.time()
 
     # Cache key pakai signal + harga (bukan signal saja)
-    cache_key       = f"{signal}_{round(getattr(ind, 'close', 0), 1)}"
-    sisa            = int(300 - (now - _shared_cache["time"]))
-    signal_strength = getattr(ind, '_signal_strength', 0.5)
+    cache_key = f"{signal}_{round(getattr(ind, 'close', 0), 1)}"
+    sisa      = int(300 - (now - _shared_cache["time"]))
 
     # Pakai cache kalau < 5 menit dan key sama
     if sisa > 0 and _shared_cache["key"] == cache_key and _shared_cache["result"]:

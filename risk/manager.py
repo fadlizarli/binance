@@ -25,8 +25,10 @@ class RiskManager:
         self.session_high_balance: float = 0.0
         self._initialized: bool = False
 
-    def calculate_position(self, side, entry_price, atr, balance) -> RiskCalculation:
-        risk_amount = balance * (self.risk_cfg.risk_per_trade / 100)
+    def calculate_position(self, side, entry_price, atr, balance,
+                           risk_pct_override: float = None) -> RiskCalculation:
+        risk_pct    = risk_pct_override if risk_pct_override is not None else self.risk_cfg.risk_per_trade
+        risk_amount = balance * (risk_pct / 100)
         sl_distance = atr * self.risk_cfg.sl_atr_multiplier
         tp_distance = sl_distance * self.risk_cfg.rr_ratio
 

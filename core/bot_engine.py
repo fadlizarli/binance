@@ -323,6 +323,7 @@ class BotEngine:
                 self.cfg.notification.anthropic_api_key,
                 min_confidence=getattr(self, '_fg_min_confidence', 7),
                 symbol=self.cfg.trading.symbol,
+                signal_strength=signal.strength,
             )
             if not approved:
                 return
@@ -334,24 +335,23 @@ class BotEngine:
                 self._last_claude_conf = 7
 
         # Dynamic position sizing berdasarkan Claude confidence
+        # Pakai RISK_PER_TRADE dari config sebagai base, lalu scale ±25%
+        base_risk   = self.cfg.risk.risk_per_trade
         claude_conf = getattr(self, '_last_claude_conf', 7)
         if claude_conf >= 9:
-            dynamic_risk = 1.25
+            dynamic_risk = round(base_risk * 1.25, 2)
             logger.info(f"💪 Dynamic Risk: {dynamic_risk}% (Claude {claude_conf}/10 — sinyal kuat!)")
         else:
-            dynamic_risk = 0.75
+            dynamic_risk = round(base_risk * 0.75, 2)
             logger.info(f"📊 Dynamic Risk: {dynamic_risk}% (Claude {claude_conf}/10 — normal)")
 
-        # Recalculate dengan dynamic risk
-        orig_risk = self.cfg.risk.risk_per_trade
-        self.cfg.risk.risk_per_trade = dynamic_risk
         risk_calc = self.risk_manager.calculate_position(
             side=signal.action,
             entry_price=ind.close,
             atr=ind.atr,
             balance=self.balance,
+            risk_pct_override=dynamic_risk,
         )
-        self.cfg.risk.risk_per_trade = orig_risk  # restore
 
         self._open_position(signal, risk_calc, ind.atr)
 
