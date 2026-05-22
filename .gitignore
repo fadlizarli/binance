@@ -5,5 +5,6 @@ __pycache__/
 logs/
 data/
 .env
+.envy
 config/secrets*
 .envy
