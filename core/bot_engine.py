@@ -14,7 +14,7 @@ from exchange.binance_client import BinanceClient
 from risk.manager import RiskManager
 from strategies import get_strategy, Signal
 from utils.logger import logger, trade_logger
-from utils.claude_filter import claude_validate
+from utils.claude_filter import claude_get_confidence
 from utils.notifier import TelegramNotifier
 
 
@@ -316,34 +316,25 @@ class BotEngine:
             logger.info(f"⛔ Volume terlalu rendah ({vol_ratio:.2f}x) — skip entry")
             return
 
-        # Claude API Filter
+        # Claude Risk Adjuster — tidak pernah blok, hanya atur ukuran posisi
+        base_risk   = self.cfg.risk.risk_per_trade
+        claude_conf = 7  # default kalau Claude tidak aktif
         if self.cfg.notification.claude_filter_enabled and self.cfg.notification.anthropic_api_key:
-            approved = claude_validate(
+            claude_conf = claude_get_confidence(
                 signal.action, ind,
                 self.cfg.notification.anthropic_api_key,
-                min_confidence=getattr(self, '_fg_min_confidence', 7),
                 symbol=self.cfg.trading.symbol,
-                signal_strength=signal.strength,
             )
-            if not approved:
-                return
-            # Simpan confidence untuk dynamic sizing
-            try:
-                from utils.claude_filter import _get_last_confidence
-                self._last_claude_conf = _get_last_confidence()
-            except:
-                self._last_claude_conf = 7
 
-        # Dynamic position sizing berdasarkan Claude confidence
-        # Pakai RISK_PER_TRADE dari config sebagai base, lalu scale ±25%
-        base_risk   = self.cfg.risk.risk_per_trade
-        claude_conf = getattr(self, '_last_claude_conf', 7)
-        if claude_conf >= 9:
-            dynamic_risk = round(base_risk * 1.25, 2)
-            logger.info(f"💪 Dynamic Risk: {dynamic_risk}% (Claude {claude_conf}/10 — sinyal kuat!)")
-        else:
+        if claude_conf >= 8:
+            dynamic_risk = base_risk
+            logger.info(f"💪 Full size: {dynamic_risk}% (Claude {claude_conf}/10 — setup kuat)")
+        elif claude_conf >= 5:
             dynamic_risk = round(base_risk * 0.75, 2)
-            logger.info(f"📊 Dynamic Risk: {dynamic_risk}% (Claude {claude_conf}/10 — normal)")
+            logger.info(f"📊 Medium size: {dynamic_risk}% (Claude {claude_conf}/10 — cukup)")
+        else:
+            dynamic_risk = round(base_risk * 0.50, 2)
+            logger.info(f"⚠️ Reduced size: {dynamic_risk}% (Claude {claude_conf}/10 — risiko tinggi)")
 
         risk_calc = self.risk_manager.calculate_position(
             side=signal.action,
