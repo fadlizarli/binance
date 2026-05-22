@@ -6,3 +6,4 @@ logs/
 data/
 .env
 config/secrets*
+.envy
