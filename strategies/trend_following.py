@@ -5,36 +5,51 @@ class TrendFollowingStrategy(BaseStrategy):
     name = "trend_following"
     def generate_signal(self, ind: IndicatorResult) -> Signal:
         sl, ss, r = 0, 0, []
+
+        # Filter 1: EMA200 — struktur macro harus mendukung arah
+        if ind.ema_trend == "BULLISH" and ind.close < ind.ema_200:
+            return self._wait(f"Harga di bawah EMA200 (${ind.ema_200:.2f}) — kontra trend macro")
+        if ind.ema_trend == "BEARISH" and ind.close > ind.ema_200:
+            return self._wait(f"Harga di atas EMA200 (${ind.ema_200:.2f}) — kontra trend macro")
+
+        # Filter 2: Volume wajib minimal normal
+        if ind.volume_ratio < 0.8:
+            return self._wait(f"Volume terlalu lemah ({ind.volume_ratio:.2f}x) — tidak ada konfirmasi")
+
+        # EMA stack
         if ind.ema_trend == "BULLISH": sl += 3; r.append("EMA bullish stack ✅")
         elif ind.ema_trend == "BEARISH": ss += 3; r.append("EMA bearish stack ✅")
         else: return self._wait("EMA tidak dalam trend jelas")
 
+        # Pullback ke EMA21
         dist = abs(ind.close - ind.ema_21) / ind.ema_21 * 100
         if dist <= 0.8:
             if ind.ema_trend == "BULLISH": sl += 2; r.append(f"Pullback EMA21 ({dist:.2f}%) ✅")
             else: ss += 2
         elif dist > 3.0: return self._wait(f"Terlalu jauh dari EMA21 ({dist:.2f}%)")
 
+        # MACD
         if ind.macd_line > 0: sl += 1; r.append(f"MACD positif ({ind.macd_line:.2f}) ✅")
         elif ind.macd_line < 0: ss += 1
         if ind.macd_cross == "BULLISH_CROSS": sl += 2; r.append("MACD bullish cross 🔥")
         elif ind.macd_cross == "BEARISH_CROSS": ss += 2
 
-        if 30 <= ind.rsi <= 65: sl += 1; r.append(f"RSI normal ({ind.rsi:.1f}) ✅")
+        # Filter 3: RSI lebih ketat — hindari entry saat momentum sudah lemah
+        if 35 <= ind.rsi <= 60: sl += 1; r.append(f"RSI optimal ({ind.rsi:.1f}) ✅")
         elif 35 <= ind.rsi <= 70: ss += 1
-        elif ind.rsi > 75: return self._wait(f"RSI overbought ({ind.rsi:.1f})")
+        elif ind.rsi > 70: return self._wait(f"RSI overbought ({ind.rsi:.1f})")
+        elif ind.rsi < 30: return self._wait(f"RSI oversold ekstrem ({ind.rsi:.1f})")
 
+        # Volume bonus
         if ind.volume_signal == "HIGH": sl += 1; ss += 1; r.append("Volume tinggi 💪")
 
         # Candlestick pattern bonus
-        if ind.hammer:
-            sl += 1; r.append("Hammer 🔨")
-        if ind.engulfing == "BULLISH":
-            sl += 2; r.append("Bullish Engulfing 🕯️")
-        if ind.engulfing == "BEARISH":
-            ss += 2; r.append("Bearish Engulfing 🕯️")
+        if ind.hammer: sl += 1; r.append("Hammer 🔨")
+        if ind.engulfing == "BULLISH": sl += 2; r.append("Bullish Engulfing 🕯️")
+        if ind.engulfing == "BEARISH": ss += 2; r.append("Bearish Engulfing 🕯️")
         if ind.rsi_divergence == "BEAR_DIV" and sl > ss: return self._wait("Bearish divergence ⚠️")
 
-        if sl >= 5 and sl > ss: return self._make_signal("LONG", min(sl/9, 1.0), " | ".join(r))
+        # Filter 4: Threshold lebih tinggi — butuh lebih banyak konfirmasi
+        if sl >= 7 and sl > ss: return self._make_signal("LONG", min(sl/9, 1.0), " | ".join(r))
         if ss >= 7 and ss > sl: return self._make_signal("SHORT", min(ss/9, 1.0), "Bearish " + " | ".join(r))
         return self._wait(f"Score kurang (L:{sl} S:{ss})")

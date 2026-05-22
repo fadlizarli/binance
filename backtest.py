@@ -103,6 +103,9 @@ def precompute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     bw              = (bb_upper - bb_lower) / bb_mid
     out["bb_squeeze"] = bw < bw.rolling(50).mean() * 0.7
 
+    # EMA200
+    out["ema200"] = calc_ema(c, 200)
+
     # ATR
     out["atr"] = calc_atr(h, l, c, 14)
 
@@ -123,9 +126,16 @@ def precompute_indicators(df: pd.DataFrame) -> pd.DataFrame:
 # ============================================================
 
 def signal_trend_following(row) -> str:
+    # Filter 1: EMA200 — struktur macro harus mendukung
+    if row["ema_bull"] and row["close"] < row.get("ema200", 0): return "WAIT"
+    if row["ema_bear"] and row["close"] > row.get("ema200", float("inf")): return "WAIT"
+
+    # Filter 2: Volume wajib minimal normal
+    if row["vol_ratio"] < 0.8: return "WAIT"
+
     score_l = score_s = 0
-    if row["ema_bull"]:    score_l += 3
-    elif row["ema_bear"]:  score_s += 3
+    if row["ema_bull"]:   score_l += 3
+    elif row["ema_bear"]: score_s += 3
     else: return "WAIT"
 
     dist = abs(row["close"] - row["ema21"]) / row["ema21"] * 100
@@ -134,19 +144,22 @@ def signal_trend_following(row) -> str:
         else:               score_s += 2
     elif dist > 3.0: return "WAIT"
 
-    if row["macd"] > 0:             score_l += 1
-    else:                           score_s += 1
-    if row["macd_bull_cross"]:      score_l += 2
-    elif row["macd_bear_cross"]:    score_s += 2
+    if row["macd"] > 0:          score_l += 1
+    else:                        score_s += 1
+    if row["macd_bull_cross"]:   score_l += 2
+    elif row["macd_bear_cross"]: score_s += 2
 
-    if 30 <= row["rsi"] <= 65:      score_l += 1
-    elif 35 <= row["rsi"] <= 70:    score_s += 1
-    elif row["rsi"] > 75:           return "WAIT"
+    # Filter 3: RSI lebih ketat — 35-60 untuk LONG
+    if 35 <= row["rsi"] <= 60:   score_l += 1
+    elif 35 <= row["rsi"] <= 70: score_s += 1
+    elif row["rsi"] > 70:        return "WAIT"
+    elif row["rsi"] < 30:        return "WAIT"
 
-    if row["vol_ratio"] >= 1.5:     score_l += 1; score_s += 1
+    if row["vol_ratio"] >= 1.5: score_l += 1; score_s += 1
 
-    if score_l >= 5 and score_l > score_s: return "LONG"
-    if score_s >= 5 and score_s > score_l: return "SHORT"
+    # Filter 4: Threshold lebih tinggi — butuh lebih banyak konfirmasi
+    if score_l >= 7 and score_l > score_s: return "LONG"
+    if score_s >= 7 and score_s > score_l: return "SHORT"
     return "WAIT"
 
 
