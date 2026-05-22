@@ -158,8 +158,8 @@ def extract_state(logs):
             m = re.search(r"Entry:([0-9.]+) SL:([0-9.]+).*TP:([0-9.]+)", line)
             if m: entry_p=float(m.group(1)); sl_p=float(m.group(2)); tp_p=float(m.group(3))
         if "POSISI DITUTUP" in line: last_side=None; entry_p=sl_p=tp_p=None
-        if "Claude setuju" in line: state["claude_approve"]+=1
-        if "Claude tidak setuju" in line: state["claude_skip"]+=1
+        if "Full size" in line or "Medium size" in line: state["claude_approve"]+=1
+        if "Reduced size" in line: state["claude_skip"]+=1
         if "Sinyal:" in line:
             m = re.search(r"Sinyal: (\w+) \(strength: ([0-9.]+)\)(.*)", line)
             if m: state["last_signal"] = {"action": m.group(1), "strength": float(m.group(2)), "reason": m.group(3).strip()}
@@ -193,11 +193,12 @@ def enrich_with_binance(state):
         if not client or not client.is_connected(): return state
         from config import config
         symbol = config.trading.symbol
-        price = client.get_current_price(symbol)
+        price = client.get_ticker_price(symbol)
         if price: state["current_price"] = price
-        balance = client.get_balance()
+        balance = client.get_account_balance()
         if balance: state["balance"] = balance
-        pos = client.get_open_position(symbol)
+        positions = client.get_open_positions(symbol)
+        pos = positions[0] if positions else None
         if pos and pos.get("positionAmt") and float(pos["positionAmt"]) != 0:
             amt = float(pos["positionAmt"])
             ep = float(pos.get("entryPrice", 0))
@@ -789,7 +790,7 @@ async function refresh(){
         let c='';
         if(l.includes('ERROR')||l.includes('STOP_LOSS'))c='e';
         else if(l.includes('WARNING'))c='w';
-        else if(l.includes('TAKE_PROFIT')||l.includes('Claude setuju'))c='s';
+        else if(l.includes('TAKE_PROFIT')||l.includes('Full size')||l.includes('Medium size'))c='s';
         else if(l.includes('DEBUG')||l.includes('WAIT'))c='d';
         return '<div class="ll '+c+'">'+l.replace(/</g,'&lt;')+'</div>';
       }).join('');
@@ -842,8 +843,8 @@ def api_status():
         return jsonify({
             **state,
             "total_pnl": total_pnl,
-            "claude_approve": sum(1 for f in __import__("glob").glob(os.path.join(BASE_DIR,"logs","cryptobot_*.log")) for l in open(f) if "Claude setuju" in l),
-            "claude_skip": sum(1 for f in __import__("glob").glob(os.path.join(BASE_DIR,"logs","cryptobot_*.log")) for l in open(f) if "Claude tidak setuju" in l),
+            "claude_approve": sum(1 for f in __import__("glob").glob(os.path.join(BASE_DIR,"logs","cryptobot_*.log")) for l in open(f) if "Full size" in l or "Medium size" in l),
+            "claude_skip": sum(1 for f in __import__("glob").glob(os.path.join(BASE_DIR,"logs","cryptobot_*.log")) for l in open(f) if "Reduced size" in l),
             "perf": perf,
             "strategy": getattr(config.trading, "strategy", "trend_following"),
             "symbol": config.trading.symbol,
@@ -871,7 +872,8 @@ def api_close_position():
             return jsonify({"success": False, "error": "Client tidak tersedia"})
         from config import config
         symbol = config.trading.symbol
-        pos = client.get_open_position(symbol)
+        positions = client.get_open_positions(symbol)
+        pos = positions[0] if positions else None
         if not pos or float(pos.get("positionAmt", 0)) == 0:
             return jsonify({"success": False, "error": "Tidak ada posisi aktif"})
         amt = float(pos["positionAmt"])
