@@ -121,6 +121,9 @@ class BotEngine:
             logger.warning("Gagal ambil data candle")
             return
 
+        # Buang candle terakhir yang belum tutup — hanya pakai candle closed
+        df = df.iloc[:-1]
+
         ind = self.indicators.calculate(df)
         if ind is None:
             logger.warning("Indikator belum bisa dihitung")
@@ -180,6 +183,7 @@ class BotEngine:
         try:
             df_4h = self.exchange.get_klines(symbol, "4h", limit=100)
             if df_4h is not None:
+                df_4h = df_4h.iloc[:-1]  # hanya candle closed
                 ind_4h = self.indicators.calculate(df_4h)
                 if ind_4h is not None:
                     ema_trend_4h = ind_4h.ema_trend
