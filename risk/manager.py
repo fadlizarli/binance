@@ -27,6 +27,15 @@ class RiskManager:
 
     def calculate_position(self, side, entry_price, atr, balance,
                            risk_pct_override: float = None) -> RiskCalculation:
+        _invalid = lambda reason: RiskCalculation(False, side, entry_price, 0, 0, 0, 0, 0, 0, 0, 0, reason)
+
+        if not entry_price or entry_price <= 0:
+            return _invalid("Entry price tidak valid")
+        if not atr or atr <= 0:
+            return _invalid("ATR tidak valid")
+        if not balance or balance <= 0:
+            return _invalid("Balance tidak valid")
+
         risk_pct    = risk_pct_override if risk_pct_override is not None else self.risk_cfg.risk_per_trade
         risk_amount = balance * (risk_pct / 100)
         sl_distance = atr * self.risk_cfg.sl_atr_multiplier
@@ -54,6 +63,9 @@ class RiskManager:
         elif entry_price >= 10:  quantity = round(quantity, 1)   # SOL, ETH
         elif entry_price >= 1:   quantity = round(quantity, 1)   # DOGE dll
         else:                    quantity = round(quantity, 0)
+
+        if quantity <= 0:
+            return _invalid("Quantity terlalu kecil setelah pembulatan")
 
         sl_pct    = (sl_distance / entry_price) * 100
         tp_pct    = (tp_distance / entry_price) * 100

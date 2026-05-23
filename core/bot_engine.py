@@ -51,7 +51,10 @@ class BotEngine:
 
         # Balance
         fetched = self.exchange.get_account_balance()
-        self.balance = fetched if fetched and fetched > 0 else 1000.0
+        if not fetched or fetched <= 0:
+            logger.critical("❌ Gagal ambil balance dari exchange — bot tidak bisa mulai dengan aman")
+            return
+        self.balance = fetched
         self.risk_manager.set_initial_balance(self.balance)
 
         logger.info(f"💰 Balance: ${self.balance:,.2f} USDT")
@@ -336,6 +339,9 @@ class BotEngine:
             balance=self.balance,
             risk_pct_override=dynamic_risk,
         )
+        if not risk_calc.valid:
+            logger.warning(f"⛔ Risk tidak valid (final): {risk_calc.reason}")
+            return
 
         self._open_position(signal, risk_calc, ind.atr)
 
@@ -388,10 +394,14 @@ class BotEngine:
         sl_order = self.exchange.place_stop_loss_order(symbol, close_side, risk_calc.quantity, risk_calc.stop_loss)
         if sl_order:
             pos.sl_order_id = str(sl_order.get("orderId", ""))
+        else:
+            logger.warning("⚠️  SL order gagal — posisi tidak terlindungi di exchange! Software SL aktif.")
 
         tp_order = self.exchange.place_take_profit_order(symbol, close_side, risk_calc.quantity, risk_calc.take_profit)
         if tp_order:
             pos.tp_order_id = str(tp_order.get("orderId", ""))
+        else:
+            logger.warning("⚠️  TP order gagal — software TP aktif.")
 
         self.open_position = pos
         self.risk_manager.register_trade_open()
@@ -493,7 +503,10 @@ class BotEngine:
             pos.sl_moved_to_be = True
             logger.info(f"🔐 SL dipindah ke breakeven: ${pos.entry_price:.2f}")
             if pos.sl_order_id:
-                self.exchange.cancel_order(pos.symbol, int(pos.sl_order_id))
+                try:
+                    self.exchange.cancel_order(pos.symbol, int(pos.sl_order_id))
+                except (ValueError, TypeError):
+                    logger.warning(f"sl_order_id tidak valid untuk dibatalkan: {pos.sl_order_id!r}")
             sl_order = self.exchange.place_stop_loss_order(pos.symbol, pos.close_side, pos.quantity, pos.entry_price)
             if sl_order:
                 pos.sl_order_id = str(sl_order.get("orderId", ""))
@@ -505,7 +518,10 @@ class BotEngine:
             pos.stop_loss = new_sl
             logger.info(f"🎯 Trailing Stop: ${old_sl:.2f} → ${new_sl:.2f}")
             if pos.sl_order_id:
-                self.exchange.cancel_order(pos.symbol, int(pos.sl_order_id))
+                try:
+                    self.exchange.cancel_order(pos.symbol, int(pos.sl_order_id))
+                except (ValueError, TypeError):
+                    logger.warning(f"sl_order_id tidak valid untuk dibatalkan: {pos.sl_order_id!r}")
             sl_order = self.exchange.place_stop_loss_order(pos.symbol, pos.close_side, pos.quantity, new_sl)
             if sl_order:
                 pos.sl_order_id = str(sl_order.get("orderId", ""))

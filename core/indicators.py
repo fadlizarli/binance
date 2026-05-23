@@ -41,8 +41,9 @@ class IndicatorEngine:
             r.bb_squeeze  = self._bb_squeeze(c)
             r.bb_position = "AT_UPPER" if c.iloc[-1] >= bu else "AT_LOWER" if c.iloc[-1] <= bl else "ABOVE_MID" if c.iloc[-1] > bm else "BELOW_MID"
             r.atr = self._atr(h, l, c)
-            r.atr_percent = (r.atr / c.iloc[-1]) * 100
-            r.volume_ratio = round(v.iloc[-1] / v.rolling(20).mean().iloc[-1], 2) if v.rolling(20).mean().iloc[-1] else 1.0
+            r.atr_percent = (r.atr / c.iloc[-1]) * 100 if c.iloc[-1] > 0 else 0
+            _vol_mean = v.rolling(20).mean().iloc[-1]
+            r.volume_ratio = round(v.iloc[-1] / _vol_mean, 2) if (_vol_mean and _vol_mean > 0) else 1.0
             r.volume_signal = "HIGH" if r.volume_ratio >= 1.5 else "LOW" if r.volume_ratio <= 0.6 else "NORMAL"
             r.close, r.high, r.low = c.iloc[-1], h.iloc[-1], l.iloc[-1]
             r.hammer    = self._detect_hammer(df)

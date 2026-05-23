@@ -215,9 +215,12 @@ Dashboard membaca log file dan menampilkan status real-time:
 
 ---
 
-## Catatan Keamanan
+## Keamanan & Stabilitas
 
 - Jangan commit file `.env` atau `.envy` ke git
 - Selalu test di **TESTNET** sebelum switch ke live
 - Gunakan API key dengan permission **Futures only**, tanpa permission withdraw
 - Simpan API key di `.env`, tidak pernah hardcode di kode
+- Bot **menolak start** jika balance tidak bisa diambil dari exchange (tidak ada fallback ke nilai fiktif)
+- SL/TP order yang gagal di-place dicatat di log sebagai warning — software SL/TP tetap aktif sebagai backup
+- `calculate_position` memvalidasi entry price, ATR, dan balance sebelum kalkulasi untuk menghindari division by zero
