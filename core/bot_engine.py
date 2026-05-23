@@ -156,9 +156,6 @@ class BotEngine:
             fg_label = _fg_cache["label"]
             logger.debug(f"😨 Fear & Greed: {fg_value} ({fg_label})")
 
-            if fg_value < 20:
-                logger.info(f"⛔ Extreme Fear ({fg_value}) — skip entry, pasar panik!")
-                return
             if fg_value > 80:
                 logger.info(f"⛔ Extreme Greed ({fg_value}) — skip entry, pasar euforia!")
                 return
@@ -271,40 +268,6 @@ class BotEngine:
             ind.htf_trend = htf_trend
         except:
             pass
-
-        # Consecutive loss protection
-        try:
-            import csv as _csv, os as _os, glob as _glob, re as _re
-            BASE_DIR = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-            # Baca dari log langsung — lebih akurat
-            _trades = []
-            for _lf in sorted(_glob.glob(_os.path.join(BASE_DIR, "logs", "cryptobot_*.log"))):
-                with open(_lf) as _f:
-                    _lines = _f.readlines()
-                _i = 0
-                while _i < len(_lines):
-                    _l = _lines[_i].strip()
-                    if "POSISI DITUTUP" in _l:
-                        _reason = "WIN" if "TAKE_PROFIT" in _l else "UNKNOWN"
-                        if _i + 1 < len(_lines):
-                            _d = _lines[_i+1].strip()
-                            _pm = _re.search(r"PnL: \$([+-]?[\d.]+)", _d)
-                            if _pm:
-                                _pnl = float(_pm.group(1))
-                                _trades.append("WIN" if _pnl > 0 else "LOSS")
-                    _i += 1
-            if _trades:
-                _consecutive = 0
-                for _r in reversed(_trades):
-                    if _r == "LOSS": _consecutive += 1
-                    else: break
-                if _consecutive >= 3:
-                    logger.info(f"⛔ {_consecutive} loss berturut — skip entry hari ini")
-                    return
-                elif _consecutive == 2:
-                    logger.info(f"⚠️ {_consecutive} loss berturut — extra hati-hati")
-        except Exception as _e:
-            logger.debug(f"Loss protection error: {_e}")
 
         # Filter volume minimum
         vol_ratio = getattr(ind, 'volume_ratio', 1.0)
