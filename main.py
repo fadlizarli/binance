@@ -107,10 +107,17 @@ def main():
         ind = precompute_indicators(raw)
         logger.info(f"   ✅ {len(ind):,} baris siap")
 
-        # Constraint live trading dari config
+        # Constraint live trading dari config + env
+        import os as _os
+        long_only_env  = _os.getenv("LONG_ONLY", "false").lower() == "true"
         max_trades_day = config.risk.max_trades_per_day
         max_dd_day     = config.risk.max_daily_drawdown
-        cons_str = f"LONG ONLY | Max {max_trades_day}tx/hari | MaxDD {max_dd_day}%/hari"
+        cons_parts = [
+            "LONG ONLY" if long_only_env else "LONG+SHORT",
+            f"Max {max_trades_day}tx/hari",
+            f"MaxDD {max_dd_day}%/hari",
+        ]
+        cons_str = " | ".join(cons_parts)
         logger.info(f"⚙️  Constraint live: {cons_str}")
 
         strategies = [args.strategy] if args.strategy else ["trend_following", "support_bounce", "breakout", "scalping"]
@@ -118,7 +125,7 @@ def main():
         for s in strategies:
             r = run_backtest(
                 s, args.balance, ind.copy(), raw, symbol,
-                long_only=True,
+                long_only=long_only_env,
                 max_trades_per_day=max_trades_day,
                 max_daily_drawdown=max_dd_day,
             )
