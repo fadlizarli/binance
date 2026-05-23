@@ -188,13 +188,28 @@ def extract_state(logs):
     return state
 
 def enrich_with_binance(state):
+    symbol = "SOLUSDT"
+    try:
+        from config import config
+        symbol = config.trading.symbol
+    except: pass
+
+    # Public API — no API key needed, always attempt
+    try:
+        import requests as _req
+        _r = _req.get(
+            f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}",
+            timeout=3
+        )
+        if _r.status_code == 200:
+            state["current_price"] = float(_r.json()["price"])
+    except: pass
+
     try:
         client = get_client()
         if not client or not client.is_connected(): return state
-        from config import config
-        symbol = config.trading.symbol
         price = client.get_ticker_price(symbol)
-        if price: state["current_price"] = price
+        if price: state["current_price"] = price  # live client overrides if available
         balance = client.get_account_balance()
         if balance: state["balance"] = balance
         positions = client.get_open_positions(symbol)
