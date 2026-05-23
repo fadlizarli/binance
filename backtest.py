@@ -106,6 +106,14 @@ def precompute_indicators(df: pd.DataFrame) -> pd.DataFrame:
     # EMA200
     out["ema200"] = calc_ema(c, 200)
 
+    # RSI divergence approximation (untuk support_bounce)
+    # BULL_DIV: harga turun tapi RSI naik selama 5 bar
+    # BEAR_DIV: harga naik tapi RSI turun selama 5 bar
+    price_chg = c.diff(5)
+    rsi_chg   = out["rsi"].diff(5)
+    out["bull_div"] = (price_chg < 0) & (rsi_chg > 3)
+    out["bear_div"] = (price_chg > 0) & (rsi_chg < -3)
+
     # ATR
     out["atr"] = calc_atr(h, l, c, 14)
 
@@ -164,7 +172,15 @@ def signal_trend_following(row) -> str:
 
 
 def signal_support_bounce(row) -> str:
+    # Filter 1: Volume wajib
+    if row["vol_ratio"] < 0.8: return "WAIT"
+    # Filter 2: RSI terlalu ekstrem
+    if row["rsi"] < 20 or row["rsi"] > 80: return "WAIT"
+
     score_l = score_s = 0
+    bull_div = bool(row.get("bull_div", False))
+    bear_div = bool(row.get("bear_div", False))
+
     if row["close"] <= row["bb_lower"]:   score_l += 3
     elif row["close"] >= row["bb_upper"]: score_s += 3
 
@@ -173,15 +189,26 @@ def signal_support_bounce(row) -> str:
     elif row["rsi"] > 70:  score_s += 3
     elif row["rsi"] > 62:  score_s += 2
 
-    if row["macd_bull_cross"]: score_l += 1
+    if bull_div: score_l += 3
+    if bear_div: score_s += 3
+
+    # Filter 3: EMA200 — counter-trend hanya dengan divergence
+    ema200 = row.get("ema200", 0)
+    if score_l > score_s and ema200 > 0 and row["close"] < ema200 and not bull_div:
+        return "WAIT"
+    if score_s > score_l and ema200 > 0 and row["close"] > ema200 and not bear_div:
+        return "WAIT"
+
+    if row["macd_bull_cross"]:   score_l += 1
     elif row["macd_bear_cross"]: score_s += 1
 
     if row["vol_ratio"] >= 1.5:
         if score_l > score_s: score_l += 1
         else:                 score_s += 1
 
-    if score_l >= 5 and score_l > score_s: return "LONG"
-    if score_s >= 5 and score_s > score_l: return "SHORT"
+    # Filter 4: Threshold 6 (naik dari 5)
+    if score_l >= 6 and score_l > score_s: return "LONG"
+    if score_s >= 6 and score_s > score_l: return "SHORT"
     return "WAIT"
 
 

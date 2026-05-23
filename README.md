@@ -155,7 +155,7 @@ python dashboard.py
 | Strategi | Sinyal Utama | Cocok Untuk |
 |---|---|---|
 | `trend_following` | EMA stack + MACD + pullback | Trending market |
-| `support_bounce` | BB Lower/Upper + RSI divergence | Ranging market |
+| `support_bounce` | BB Lower/Upper + RSI divergence + EMA200 | Volatile/ranging market |
 | `breakout` | BB Squeeze + volume konfirmasi | Breakout momen |
 | `scalping` | MACD cross + EMA9 | Timeframe kecil (1m-15m) |
 
