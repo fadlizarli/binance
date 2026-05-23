@@ -211,13 +211,11 @@ class BotEngine:
 
         # Generate sinyal
         signal = self.strategy.generate_signal(ind)
-        logger.debug(f"📡 Sinyal: {signal.action} (strength: {signal.strength:.2f}) | {signal.reason}")
+        logger.info(f"📡 Sinyal: {signal.action} (strength: {signal.strength:.2f}) | {signal.reason}")
+        self.indicators.print_summary(ind)
 
         if signal.action == "WAIT":
-            logger.info(f"⏳ WAIT | {signal.reason}")
             return
-
-        self.indicators.print_summary(ind)
 
         risk_calc = self.risk_manager.calculate_position(
             side=signal.action,

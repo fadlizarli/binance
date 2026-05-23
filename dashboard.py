@@ -188,16 +188,32 @@ def extract_state(logs):
     return state
 
 def enrich_with_binance(state):
+    symbol = "SOLUSDT"
+    try:
+        from config import config
+        symbol = config.trading.symbol
+    except: pass
+
+    # Public API — no API key needed, always attempt
+    try:
+        import requests as _req
+        _r = _req.get(
+            f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}",
+            timeout=3
+        )
+        if _r.status_code == 200:
+            state["current_price"] = float(_r.json()["price"])
+    except: pass
+
     try:
         client = get_client()
         if not client or not client.is_connected(): return state
-        from config import config
-        symbol = config.trading.symbol
-        price = client.get_current_price(symbol)
-        if price: state["current_price"] = price
-        balance = client.get_balance()
+        price = client.get_ticker_price(symbol)
+        if price: state["current_price"] = price  # live client overrides if available
+        balance = client.get_account_balance()
         if balance: state["balance"] = balance
-        pos = client.get_open_position(symbol)
+        positions = client.get_open_positions(symbol)
+        pos = positions[0] if positions else None
         if pos and pos.get("positionAmt") and float(pos["positionAmt"]) != 0:
             amt = float(pos["positionAmt"])
             ep = float(pos.get("entryPrice", 0))
@@ -871,7 +887,8 @@ def api_close_position():
             return jsonify({"success": False, "error": "Client tidak tersedia"})
         from config import config
         symbol = config.trading.symbol
-        pos = client.get_open_position(symbol)
+        positions = client.get_open_positions(symbol)
+        pos = positions[0] if positions else None
         if not pos or float(pos.get("positionAmt", 0)) == 0:
             return jsonify({"success": False, "error": "Tidak ada posisi aktif"})
         amt = float(pos["positionAmt"])
