@@ -132,6 +132,16 @@ python main.py --backtest --candles 1000               # lebih banyak candle (mo
 
 Data real di-cache otomatis di folder `data/` selama 4 jam. Tidak butuh API key — menggunakan public Binance Futures endpoint.
 
+Backtest via `main.py` otomatis menerapkan constraint live trading:
+- **LONG ONLY** — simulasi HTF filter (hampir selalu aktif di live bot)
+- **Max trades/hari** — sesuai `MAX_TRADES_PER_DAY` dari `.env`
+- **Max drawdown harian** — sesuai `MAX_DAILY_DRAWDOWN` dari `.env`
+
+Untuk backtest tanpa constraint (angka kasar), gunakan `backtest.py` langsung:
+```bash
+python backtest.py --real --all --long-only --max-trades 3 --max-dd 3.0
+```
+
 ### Dashboard Web
 ```bash
 python dashboard.py

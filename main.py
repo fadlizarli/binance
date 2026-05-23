@@ -107,10 +107,21 @@ def main():
         ind = precompute_indicators(raw)
         logger.info(f"   ✅ {len(ind):,} baris siap")
 
+        # Constraint live trading dari config
+        max_trades_day = config.risk.max_trades_per_day
+        max_dd_day     = config.risk.max_daily_drawdown
+        cons_str = f"LONG ONLY | Max {max_trades_day}tx/hari | MaxDD {max_dd_day}%/hari"
+        logger.info(f"⚙️  Constraint live: {cons_str}")
+
         strategies = [args.strategy] if args.strategy else ["trend_following", "support_bounce", "breakout", "scalping"]
         results = []
         for s in strategies:
-            r = run_backtest(s, args.balance, ind.copy(), raw, symbol)
+            r = run_backtest(
+                s, args.balance, ind.copy(), raw, symbol,
+                long_only=True,
+                max_trades_per_day=max_trades_day,
+                max_daily_drawdown=max_dd_day,
+            )
             results.append(r)
 
         if len(results) == 1:
@@ -119,6 +130,7 @@ def main():
         else:
             logger.info("\n" + "=" * 78)
             logger.info(f"📊 PERBANDINGAN SEMUA STRATEGI | {src} | Modal: ${args.balance:,.0f}")
+            logger.info(f"   Constraint: {cons_str}")
             logger.info("=" * 78)
             logger.info(f"{'Strategi':<20} {'Trades':>7} {'WinRate':>8} {'ROI':>9} {'PF':>6} {'MaxDD':>7}")
             logger.info("-" * 78)

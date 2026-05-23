@@ -246,12 +246,15 @@ SIGNAL_FNS = {
 # ============================================================
 
 def run_backtest(
-    strategy_name:   str,
-    initial_balance: float,
-    ind_df:          pd.DataFrame,   # pre-computed indicators
-    raw_df:          pd.DataFrame,   # raw OHLCV
-    symbol:          str  = "BTCUSDT",
-    verbose:         bool = False,
+    strategy_name:      str,
+    initial_balance:    float,
+    ind_df:             pd.DataFrame,
+    raw_df:             pd.DataFrame,
+    symbol:             str   = "BTCUSDT",
+    verbose:            bool  = False,
+    long_only:          bool  = False,
+    max_trades_per_day: int   = 0,
+    max_daily_drawdown: float = 0.0,
 ) -> dict:
     signal_fn   = SIGNAL_FNS[strategy_name]
     rr_ratio    = config.risk.rr_ratio
@@ -262,18 +265,29 @@ def run_backtest(
     trades      = []
     open_pos    = None
 
+    # Daily constraint tracking
+    current_date        = None
+    daily_trades        = 0
+    daily_start_balance = initial_balance
+    daily_frozen        = False   # True saat drawdown harian habis
+
     # Generate sinyal untuk semua baris sekaligus
     signals = ind_df.apply(signal_fn, axis=1)
 
-    rows    = ind_df.values
-    cols    = {c: i for i, c in enumerate(ind_df.columns)}
-
     for i, (ts, row) in enumerate(ind_df.iterrows()):
-        price  = row["close"]
-        atr    = row["atr"]
-        sig    = signals.iloc[i]
+        price = row["close"]
+        atr   = row["atr"]
+        sig   = signals.iloc[i]
 
-        # Manage posisi
+        # Reset harian
+        row_date = ts.date() if hasattr(ts, "date") else ts
+        if row_date != current_date:
+            current_date        = row_date
+            daily_trades        = 0
+            daily_start_balance = balance
+            daily_frozen        = False
+
+        # Manage posisi terbuka (selalu, tanpa constraint)
         if open_pos:
             closed, reason, pnl = False, "", 0.0
             if open_pos["side"] == "LONG":
@@ -290,14 +304,14 @@ def run_backtest(
             if closed:
                 balance += pnl
                 trades.append({
-                    "side":    open_pos["side"],
-                    "entry":   open_pos["entry"],
-                    "exit":    price,
-                    "sl":      open_pos["sl"],
-                    "tp":      open_pos["tp"],
-                    "pnl":     round(pnl, 4),
-                    "reason":  reason,
-                    "open_ts": open_pos["ts"],
+                    "side":     open_pos["side"],
+                    "entry":    open_pos["entry"],
+                    "exit":     price,
+                    "sl":       open_pos["sl"],
+                    "tp":       open_pos["tp"],
+                    "pnl":      round(pnl, 4),
+                    "reason":   reason,
+                    "open_ts":  open_pos["ts"],
                     "close_ts": ts,
                 })
                 if verbose:
@@ -306,16 +320,22 @@ def run_backtest(
                 open_pos = None
             continue
 
-        # Entry baru
+        # ── Constraint checks sebelum entry baru ──
         if sig == "WAIT":
             continue
+        if long_only and sig == "SHORT":
+            continue
+        if max_trades_per_day > 0 and daily_trades >= max_trades_per_day:
+            continue
+        if max_daily_drawdown > 0 and daily_start_balance > 0:
+            dd_today = (daily_start_balance - balance) / daily_start_balance * 100
+            if dd_today >= max_daily_drawdown:
+                continue
 
         sl_dist = atr * sl_mult
         if sl_dist <= 0:
             continue
-
-        sl_pct = sl_dist / price * 100
-        if sl_pct > 5.0:   # SL terlalu jauh, skip
+        if sl_dist / price * 100 > 5.0:
             continue
 
         risk_amt = balance * risk_pct
@@ -326,7 +346,8 @@ def run_backtest(
             sl = price + sl_dist
             tp = price - sl_dist * rr_ratio
 
-        open_pos = {"side": sig, "entry": price, "sl": sl, "tp": tp, "risk": risk_amt, "ts": ts}
+        open_pos      = {"side": sig, "entry": price, "sl": sl, "tp": tp, "risk": risk_amt, "ts": ts}
+        daily_trades += 1
 
         if verbose:
             logger.info(f"  📥 ENTRY {sig} @ ${price:.2f} | SL:${sl:.2f} TP:${tp:.2f} | Risk:${risk_amt:.2f}")
@@ -374,13 +395,25 @@ def run_backtest(
         "max_consec_loss": mcl,
         "final_balance":   round(balance, 2),
         "trades":          trades,
+        "constraints": {
+            "long_only":          long_only,
+            "max_trades_per_day": max_trades_per_day,
+            "max_daily_drawdown": max_daily_drawdown,
+        },
     }
 
 
 def print_result(r: dict):
     roi_s = f"{'+'if r['roi_pct']>=0 else ''}{r['roi_pct']:.2f}%"
+    c = r.get("constraints", {})
+    constraints_str = " | ".join(filter(None, [
+        "LONG ONLY" if c.get("long_only") else None,
+        f"Max {c['max_trades_per_day']}tx/hari" if c.get("max_trades_per_day") else None,
+        f"MaxDD {c['max_daily_drawdown']}%/hari" if c.get("max_daily_drawdown") else None,
+    ])) or "Tanpa constraint"
     logger.info("=" * 60)
     logger.info(f"📊 {r['strategy'].upper()} | {r['symbol']}")
+    logger.info(f"   Constraint : {constraints_str}")
     logger.info(f"   Trades     : {r['total_trades']}  (Win:{r['win_count']} Loss:{r['loss_count']})")
     logger.info(f"   Win Rate   : {r['win_rate']:.1f}%")
     logger.info(f"   ROI        : {roi_s}")
@@ -544,13 +577,16 @@ Contoh:
     parser.add_argument("--symbol",       default="BTCUSDT")
     parser.add_argument("--tf",           default="1h")
     parser.add_argument("--days",         type=int,   default=90)
-    parser.add_argument("--balance",      type=float, default=1000.0)
-    parser.add_argument("--candles",      type=int,   default=1000)
-    parser.add_argument("--no-cache",     action="store_true")
-    parser.add_argument("--save",         action="store_true")
-    parser.add_argument("--verbose",      action="store_true")
-    parser.add_argument("--list-cache",   action="store_true")
-    parser.add_argument("--list-symbols", action="store_true")
+    parser.add_argument("--balance",       type=float, default=1000.0)
+    parser.add_argument("--candles",       type=int,   default=1000)
+    parser.add_argument("--no-cache",      action="store_true")
+    parser.add_argument("--save",          action="store_true")
+    parser.add_argument("--verbose",       action="store_true")
+    parser.add_argument("--list-cache",    action="store_true")
+    parser.add_argument("--list-symbols",  action="store_true")
+    parser.add_argument("--long-only",     action="store_true", help="Hanya LONG (simulasi HTF filter)")
+    parser.add_argument("--max-trades",    type=int,   default=0,   help="Max trade per hari (0=unlimited)")
+    parser.add_argument("--max-dd",        type=float, default=0.0, help="Max drawdown harian %% (0=unlimited)")
     args = parser.parse_args()
 
     dl = BinanceDataDownloader()
@@ -598,7 +634,12 @@ Contoh:
     all_results = []
     for strat in strategies:
         logger.info(f"   ▶ {strat}...")
-        r = run_backtest(strat, args.balance, ind_df.copy(), raw, args.symbol, args.verbose)
+        r = run_backtest(
+            strat, args.balance, ind_df.copy(), raw, args.symbol, args.verbose,
+            long_only=args.long_only,
+            max_trades_per_day=args.max_trades,
+            max_daily_drawdown=args.max_dd,
+        )
         all_results.append(r)
         if len(strategies) == 1:
             print_result(r)
@@ -608,9 +649,15 @@ Contoh:
 
     # Tabel perbandingan
     if len(all_results) > 1:
-        logger.info("\n" + "=" * 78)
         src = f"{args.symbol} {args.tf} {args.days}d (real)" if args.real else f"simulasi {args.candles}c"
+        cons = " | ".join(filter(None, [
+            "LONG ONLY" if args.long_only else None,
+            f"Max {args.max_trades}tx/hari" if args.max_trades else None,
+            f"MaxDD {args.max_dd}%/hari"    if args.max_dd    else None,
+        ])) or "Tanpa constraint"
+        logger.info("\n" + "=" * 78)
         logger.info(f"📊 PERBANDINGAN STRATEGI | {src} | Modal: ${args.balance:,.0f}")
+        logger.info(f"   Constraint: {cons}")
         logger.info("=" * 78)
         logger.info(f"{'Strategi':<20} {'Trades':>7} {'WinRate':>8} {'ROI':>9} {'PF':>6} {'MaxDD':>7} {'C.Win':>6} {'C.Loss':>7}")
         logger.info("-" * 78)
