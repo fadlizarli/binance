@@ -24,12 +24,14 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Contoh penggunaan:
-  python main.py                            # Bot live (pakai config .env)
-  python main.py --backtest                 # Backtest semua strategi
-  python main.py --strategy breakout        # Override strategi
-  python main.py --symbol ETHUSDT           # Override symbol
-  python main.py --leverage 3               # Override leverage
-  python main.py --backtest --candles 1000  # Backtest lebih banyak data
+  python main.py                                      # Bot live (pakai config .env)
+  python main.py --backtest                           # Backtest semua strategi (mock data)
+  python main.py --backtest --real-data               # Backtest dengan data real Binance
+  python main.py --backtest --real-data --days 180    # 180 hari data real
+  python main.py --backtest --real-data --tf 1h       # Override timeframe
+  python main.py --strategy breakout                  # Override strategi
+  python main.py --symbol ETHUSDT                     # Override symbol
+  python main.py --leverage 3                         # Override leverage
         """
     )
     parser.add_argument(
@@ -45,7 +47,10 @@ Contoh penggunaan:
     parser.add_argument("--symbol", type=str, default=None, help="Override symbol")
     parser.add_argument("--leverage", type=int, default=None, help="Override leverage")
     parser.add_argument("--balance", type=float, default=1000.0, help="Modal backtest")
-    parser.add_argument("--candles", type=int, default=500, help="Candle untuk backtest")
+    parser.add_argument("--candles", type=int, default=500, help="Candle untuk backtest (mock data)")
+    parser.add_argument("--real-data", action="store_true", help="Fetch data real dari Binance Futures")
+    parser.add_argument("--days", type=int, default=90, help="Jumlah hari data historis (--real-data)")
+    parser.add_argument("--tf", type=str, default=None, help="Override timeframe untuk backtest")
     return parser.parse_args()
 
 
@@ -79,38 +84,54 @@ def main():
 
     # --- Mode Backtest ---
     if args.backtest:
-        logger.info("🔬 MODE BACKTEST")
-        from backtest import run_backtest, generate_mock_data, precompute_indicators
+        from backtest import run_backtest, generate_mock_data, precompute_indicators, BinanceDataDownloader
 
-        if args.strategy:
-            raw = generate_mock_data(n=args.candles)
-            ind = precompute_indicators(raw)
-            run_backtest(args.strategy, args.balance, ind, raw)
+        symbol = args.symbol or config.trading.symbol
+        tf     = args.tf     or config.trading.timeframe
+
+        # Ambil data
+        if args.real_data:
+            logger.info(f"🔬 MODE BACKTEST — Data Real Binance Futures")
+            dl  = BinanceDataDownloader()
+            raw = dl.download(symbol, tf, args.days)
+            if raw is None:
+                logger.error("❌ Gagal download data. Cek koneksi internet.")
+                return
+            src = f"{symbol} {tf} {args.days}d (real)"
         else:
-            # Test semua strategi
-            strategies = ["trend_following", "support_bounce", "breakout", "scalping"]
+            logger.info(f"🔬 MODE BACKTEST — Data Simulasi")
             raw = generate_mock_data(n=args.candles)
-            ind = precompute_indicators(raw)
-            results = []
-            for s in strategies:
-                r = run_backtest(s, args.balance, ind.copy(), raw)
-                results.append(r)
+            src = f"simulasi {args.candles} candle"
 
-            # Tabel perbandingan
-            logger.info("\n" + "=" * 65)
-            logger.info("📊 PERBANDINGAN SEMUA STRATEGI")
-            logger.info(f"{'Strategi':<20} {'Trades':>7} {'WinRate':>8} {'ROI':>8} {'PF':>6} {'MaxDD':>7}")
-            logger.info("-" * 65)
-            for r in results:
+        logger.info(f"⚙️  Menghitung indikator...")
+        ind = precompute_indicators(raw)
+        logger.info(f"   ✅ {len(ind):,} baris siap")
+
+        strategies = [args.strategy] if args.strategy else ["trend_following", "support_bounce", "breakout", "scalping"]
+        results = []
+        for s in strategies:
+            r = run_backtest(s, args.balance, ind.copy(), raw, symbol)
+            results.append(r)
+
+        if len(results) == 1:
+            from backtest import print_result
+            print_result(results[0])
+        else:
+            logger.info("\n" + "=" * 78)
+            logger.info(f"📊 PERBANDINGAN SEMUA STRATEGI | {src} | Modal: ${args.balance:,.0f}")
+            logger.info("=" * 78)
+            logger.info(f"{'Strategi':<20} {'Trades':>7} {'WinRate':>8} {'ROI':>9} {'PF':>6} {'MaxDD':>7}")
+            logger.info("-" * 78)
+            for r in sorted(results, key=lambda x: x["roi_pct"], reverse=True):
+                roi_s = f"{'+'if r['roi_pct']>=0 else ''}{r['roi_pct']:.2f}%"
                 logger.info(
-                    f"{r['strategy']:<20} "
-                    f"{r['total_trades']:>7} "
-                    f"{r['win_rate']:>7.1f}% "
-                    f"{r['roi_pct']:>+7.2f}% "
-                    f"{r['profit_factor']:>6.2f} "
-                    f"{r['max_drawdown']:>6.1f}%"
+                    f"{r['strategy']:<20} {r['total_trades']:>7} "
+                    f"{r['win_rate']:>7.1f}% {roi_s:>9} "
+                    f"{r['profit_factor']:>6.2f} {r['max_drawdown']:>6.1f}%"
                 )
-            logger.info("=" * 65)
+            logger.info("=" * 78)
+            best = max(results, key=lambda x: x["roi_pct"])
+            logger.info(f"🏆 Terbaik: {best['strategy'].upper()} | ROI:{'+' if best['roi_pct']>=0 else ''}{best['roi_pct']:.2f}% | WR:{best['win_rate']:.0f}% | Trades:{best['total_trades']}")
         return
 
     # --- Mode Live Bot ---

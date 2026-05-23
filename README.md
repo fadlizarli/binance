@@ -122,10 +122,15 @@ python main.py --symbol ETHUSDT --leverage 3
 
 ### Mode Backtest
 ```bash
-python main.py --backtest                        # test semua strategi
-python main.py --backtest --strategy scalping    # test satu strategi
-python main.py --backtest --candles 1000         # lebih banyak data
+python main.py --backtest                              # test semua strategi (mock data)
+python main.py --backtest --real-data                  # data real dari Binance Futures
+python main.py --backtest --real-data --days 180       # 180 hari data historis
+python main.py --backtest --real-data --tf 1h          # override timeframe
+python main.py --backtest --strategy scalping          # test satu strategi
+python main.py --backtest --candles 1000               # lebih banyak candle (mock)
 ```
+
+Data real di-cache otomatis di folder `data/` selama 4 jam. Tidak butuh API key — menggunakan public Binance Futures endpoint.
 
 ### Dashboard Web
 ```bash
