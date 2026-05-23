@@ -169,15 +169,6 @@ class BotEngine:
             logger.debug(f"Fear & Greed tidak tersedia: {e}")
             self._fg_min_confidence = 7
 
-        # Filter jam trading — hanya entry jam 14:00-23:00 WIB
-        from datetime import datetime
-        import pytz
-        wib  = pytz.timezone("Asia/Jakarta")
-        hour = datetime.now(wib).hour
-        if not (14 <= hour < 23):
-            logger.debug(f"⏰ Di luar jam trading ({hour}:00 WIB) — skip entry")
-            return
-
         # HTF Filter — cek trend 4h sebelum entry di 1h
         htf_trend = "NEUTRAL"  # default aman
         try:

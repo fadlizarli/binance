@@ -170,7 +170,6 @@ Strategi `trend_following` memiliki 4 filter wajib sebelum signal dihitung:
 
 - **HTF Filter** — Hanya entry searah trend 4h (LONG saat 4h bullish, sebaliknya skip)
 - **Fear & Greed** — Skip entry jika nilai < 20 (Extreme Fear) atau > 80 (Extreme Greed)
-- **Jam Trading** — Hanya entry antara jam 14:00–23:00 WIB
 - **Volume Filter** — Skip entry jika volume ratio < 0.8x rata-rata
 - **Consecutive Loss** — Hentikan entry jika 3 loss berturut-turut
 - **EMA200 Macro** — Skip jika harga kontra arah EMA200
