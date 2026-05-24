@@ -16,7 +16,7 @@ Bot trading otomatis untuk Binance Futures berbasis Python. Dilengkapi manajemen
 - **Notifikasi Telegram** — Alert entry, exit, dan ringkasan harian
 - **Backtest** — Test semua strategi dengan data historis real dari Binance
 - **Dashboard Web** — Monitor posisi, harga live, dan performa via browser
-- **Multi-pair** — Support trading beberapa pair sekaligus (opsional)
+- **Multi-pair Scanner** — Scan N pair setiap tick, trade pair dengan sinyal terkuat (opsional via `SCAN_SYMBOLS`)
 
 ---
 
@@ -105,8 +105,9 @@ TELEGRAM_CHAT_ID=
 ANTHROPIC_API_KEY=
 CLAUDE_FILTER_ENABLED=false
 
-# Multi-pair (opsional, ganti SYMBOL)
-# SYMBOLS=SOLUSDT,DOGEUSDT
+# Multi-pair Scanner (opsional, menggantikan SYMBOL)
+# Jika di-set, bot scan semua pair dan trade yang paling kuat sinyalnya
+# SCAN_SYMBOLS=SOLUSDT,BTCUSDT,ETHUSDT,BNBUSDT,XRPUSDT
 ```
 
 ---
@@ -187,6 +188,22 @@ Strategi `trend_following` memiliki 4 filter wajib sebelum signal dihitung:
 - **Fear & Greed** — Skip entry jika nilai > 80 (Extreme Greed); butuh Claude ≥ 8 saat Fear (< 35)
 - **Volume Filter** — Skip entry jika volume ratio < 0.8x rata-rata
 - **EMA200 Macro** — Skip jika harga kontra arah EMA200
+
+---
+
+## Multi-pair Scanner
+
+Aktifkan dengan mengisi `SCAN_SYMBOLS` di `.env`. Bot akan scan semua pair setiap tick dan memilih **satu pair dengan sinyal terkuat** untuk di-trade.
+
+```env
+SCAN_SYMBOLS=SOLUSDT,BTCUSDT,ETHUSDT,BNBUSDT,XRPUSDT
+```
+
+- Jika `SCAN_SYMBOLS` kosong → bot trade pair dari `SYMBOL` (default)
+- Jika `SCAN_SYMBOLS` di-set → `SYMBOL` diabaikan; scanner yang menentukan pair
+- Bot tetap hanya pegang **satu posisi** dalam satu waktu
+- Leverage & margin mode (ISOLATED) di-set otomatis untuk pair terpilih
+- Recovery posisi saat restart otomatis cek semua pair di `SCAN_SYMBOLS`
 
 ---
 

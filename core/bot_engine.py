@@ -2,6 +2,7 @@
 core/bot_engine.py
 Orkestrator utama bot.
 """
+import os
 import time
 import uuid
 from datetime import datetime, date
@@ -35,9 +36,14 @@ class BotEngine:
         self.is_running: bool = False
         self._last_reset_date: date = date.today()
 
+        scan_symbols = config.trading.scan_symbols
         logger.info(f"🤖 BotEngine inisialisasi")
         logger.info(f"   Mode      : {'TESTNET' if config.api.is_testnet else '🔴 LIVE'}")
-        logger.info(f"   Symbol    : {config.trading.symbol}")
+        if scan_symbols:
+            logger.info(f"   Mode Pair : SCANNER ({len(scan_symbols)} pair)")
+            logger.info(f"   Pairs     : {', '.join(scan_symbols)}")
+        else:
+            logger.info(f"   Symbol    : {config.trading.symbol}")
         logger.info(f"   Timeframe : {config.trading.timeframe}")
         logger.info(f"   Strategi  : {self.strategy.name.upper()}")
         logger.info(f"   Leverage  : {config.trading.leverage}x")
@@ -60,36 +66,38 @@ class BotEngine:
         logger.info(f"💰 Balance: ${self.balance:,.2f} USDT")
 
         # ── RECOVERY: cek posisi terbuka saat bot restart ──
-        try:
-            existing = self.exchange.get_open_positions(config.trading.symbol)
-            if existing:
-                p   = existing[0]
-                amt = float(p["positionAmt"])
-                if amt != 0:
-                    side  = "LONG" if amt > 0 else "SHORT"
-                    entry = float(p["entryPrice"])
-                    # Estimasi SL/TP dari entry ±1.5% / ±3%
-                    sl = round(entry * (0.985 if side == "LONG" else 1.015), 4)
-                    tp = round(entry * (1.030 if side == "LONG" else 0.970), 4)
-                    self.open_position = Position(
-                        id=str(uuid.uuid4())[:8],
-                        symbol=config.trading.symbol,
-                        side=side,
-                        entry_price=entry,
-                        quantity=abs(amt),
-                        stop_loss=sl,
-                        take_profit=tp,
-                        risk_amount=self.balance * (config.risk.risk_per_trade / 100),
-                        strategy=config.trading.strategy,
-                        leverage=config.trading.leverage,
-                    )
-                    logger.info(
-                        f"♻️  Recovery posisi: {side} {config.trading.symbol} "
-                        f"@ ${entry:.2f} | Qty:{abs(amt):.1f} | "
-                        f"SL:${sl:.2f} TP:${tp:.2f}"
-                    )
-        except Exception as e:
-            logger.warning(f"Gagal recovery posisi: {e}")
+        symbols_to_check = self.cfg.trading.scan_symbols or [config.trading.symbol]
+        for check_symbol in symbols_to_check:
+            try:
+                existing = self.exchange.get_open_positions(check_symbol)
+                if existing:
+                    p   = existing[0]
+                    amt = float(p["positionAmt"])
+                    if amt != 0:
+                        side  = "LONG" if amt > 0 else "SHORT"
+                        entry = float(p["entryPrice"])
+                        sl = round(entry * (0.985 if side == "LONG" else 1.015), 4)
+                        tp = round(entry * (1.030 if side == "LONG" else 0.970), 4)
+                        self.open_position = Position(
+                            id=str(uuid.uuid4())[:8],
+                            symbol=check_symbol,
+                            side=side,
+                            entry_price=entry,
+                            quantity=abs(amt),
+                            stop_loss=sl,
+                            take_profit=tp,
+                            risk_amount=self.balance * (config.risk.risk_per_trade / 100),
+                            strategy=config.trading.strategy,
+                            leverage=config.trading.leverage,
+                        )
+                        logger.info(
+                            f"♻️  Recovery posisi: {side} {check_symbol} "
+                            f"@ ${entry:.2f} | Qty:{abs(amt):.1f} | "
+                            f"SL:${sl:.2f} TP:${tp:.2f}"
+                        )
+                        break
+            except Exception as e:
+                logger.warning(f"Gagal recovery posisi {check_symbol}: {e}")
 
         logger.info("=" * 55)
         logger.info("🚀 BOT DIMULAI — Tekan Ctrl+C untuk berhenti")
@@ -116,29 +124,23 @@ class BotEngine:
             logger.warning(f"⚠️  Masih ada posisi terbuka: {self.open_position}")
 
     def _tick(self):
-        symbol    = self.cfg.trading.symbol
         timeframe = self.cfg.trading.timeframe
 
-        df = self.exchange.get_klines(symbol, timeframe, self.cfg.candle_limit)
-        if df is None:
-            logger.warning("Gagal ambil data candle")
-            return
-
-        # Buang candle terakhir yang belum tutup — hanya pakai candle closed
-        df = df.iloc[:-1]
-
-        ind = self.indicators.calculate(df)
-        if ind is None:
-            logger.warning("Indikator belum bisa dihitung")
-            return
-
-        # Update balance (hanya jika valid)
+        # Update balance
         current_balance = self.exchange.get_account_balance()
         if current_balance and current_balance > 0:
             self.balance = current_balance
 
-        # Manage posisi terbuka
+        # ── Manage posisi terbuka (selalu pakai data pair posisi itu sendiri) ──
         if self.open_position:
+            sym = self.open_position.symbol
+            df  = self.exchange.get_klines(sym, timeframe, self.cfg.candle_limit)
+            if df is None:
+                logger.warning(f"Gagal ambil candle {sym}")
+                return
+            ind = self.indicators.calculate(df.iloc[:-1])
+            if ind is None:
+                return
             self._manage_position(ind)
             return
 
@@ -169,8 +171,8 @@ class BotEngine:
             logger.debug(f"Fear & Greed tidak tersedia: {e}")
             self._fg_min_confidence = 7
 
-        # HTF Filter — cek trend 4h sebelum entry di 1h
-        htf_trend = "NEUTRAL"  # default aman
+        # HTF Filter — cek trend 4h sebelum entry
+        htf_trend = "NEUTRAL"
         try:
             df_4h = self.exchange.get_klines(symbol, "4h", limit=100)
             if df_4h is not None:
@@ -204,13 +206,36 @@ class BotEngine:
             logger.warning(f"⛔ Tidak bisa trade: {reason}")
             return
 
-        # Generate sinyal
-        signal = self.strategy.generate_signal(ind)
-        logger.info(f"📡 Sinyal: {signal.action} (strength: {signal.strength:.2f}) | {signal.reason}")
-        self.indicators.print_summary(ind)
-
-        if signal.action == "WAIT":
-            return
+        # ── Scanner atau Fixed-symbol mode ──
+        scan_symbols = self.cfg.trading.scan_symbols
+        if scan_symbols:
+            from utils.pair_scanner import scan_pairs
+            opportunity = scan_pairs(
+                self.exchange, self.indicators, self.strategy,
+                scan_symbols, timeframe, self.cfg.candle_limit,
+            )
+            if opportunity is None:
+                logger.info("🔍 Scanner: tidak ada sinyal valid di semua pair")
+                return
+            symbol = opportunity.symbol
+            ind    = opportunity.ind
+            signal = opportunity.signal
+            logger.info(f"🎯 Scanner pilih: {symbol} | {signal.action} (score={signal.strength:.2f}) | {signal.reason}")
+            self.indicators.print_summary(ind)
+        else:
+            symbol = self.cfg.trading.symbol
+            df = self.exchange.get_klines(symbol, timeframe, self.cfg.candle_limit)
+            if df is None:
+                logger.warning(f"Gagal ambil candle {symbol}")
+                return
+            ind = self.indicators.calculate(df.iloc[:-1])
+            if ind is None:
+                return
+            signal = self.strategy.generate_signal(ind)
+            logger.info(f"📡 Sinyal: {signal.action} (strength: {signal.strength:.2f}) | {signal.reason}")
+            self.indicators.print_summary(ind)
+            if signal.action == "WAIT":
+                return
 
         risk_calc = self.risk_manager.calculate_position(
             side=signal.action,
@@ -223,7 +248,6 @@ class BotEngine:
             return
 
         # LONG ONLY mode — auto berdasarkan HTF
-        import os
         long_only_env = os.getenv("LONG_ONLY", "false").lower() == "true"
         htf = htf_trend
 
@@ -282,7 +306,7 @@ class BotEngine:
             claude_conf = claude_get_confidence(
                 signal.action, ind,
                 self.cfg.notification.anthropic_api_key,
-                symbol=self.cfg.trading.symbol,
+                symbol=symbol,
             )
 
         if claude_conf >= 8:
@@ -306,18 +330,23 @@ class BotEngine:
             logger.warning(f"⛔ Risk tidak valid (final): {risk_calc.reason}")
             return
 
-        self._open_position(signal, risk_calc, ind.atr)
+        # Scanner mode: set leverage/margin untuk pair terpilih sebelum entry
+        if scan_symbols:
+            try:
+                self.exchange.set_margin_type(symbol, "ISOLATED")
+                self.exchange.set_leverage(symbol, self.cfg.trading.leverage)
+            except Exception as e:
+                logger.warning(f"Set leverage/margin {symbol}: {e}")
 
-    def _open_position(self, signal: Signal, risk_calc, atr: float):
-        symbol   = self.cfg.trading.symbol
+        self._open_position(symbol, signal, risk_calc, ind.atr)
+
+    def _open_position(self, symbol: str, signal: Signal, risk_calc, atr: float):
         side     = signal.action
         buy_sell = "BUY" if side == "LONG" else "SELL"
 
-        # Log detail untuk analisis
-        _atr_pct = round(atr / risk_calc.entry_price * 100, 2) if atr and risk_calc.entry_price else 0
-        _claude_conf = getattr(self, '_last_claude_conf', 0)
+        _atr_pct  = round(atr / risk_calc.entry_price * 100, 2) if atr and risk_calc.entry_price else 0
         _strength = getattr(signal, 'strength', 0)
-        logger.info(f"📊 ENTRY DETAIL | ATR: {_atr_pct}% | Claude: {_claude_conf}/10 | Strength: {_strength:.2f}")
+        logger.info(f"📊 ENTRY DETAIL | ATR: {_atr_pct}% | Strength: {_strength:.2f}")
         logger.info(f"📥 Membuka posisi {side} | {symbol}")
         logger.info(
             f"   Entry: ${risk_calc.entry_price:,.2f} | "
@@ -490,10 +519,14 @@ class BotEngine:
                 pos.sl_order_id = str(sl_order.get("orderId", ""))
 
     def _init_exchange(self):
-        symbol   = self.cfg.trading.symbol
         leverage = self.cfg.trading.leverage
-        self.exchange.set_margin_type(symbol, "ISOLATED")
-        self.exchange.set_leverage(symbol, leverage)
+        symbols  = self.cfg.trading.scan_symbols or [self.cfg.trading.symbol]
+        for sym in symbols:
+            try:
+                self.exchange.set_margin_type(sym, "ISOLATED")
+                self.exchange.set_leverage(sym, leverage)
+            except Exception as e:
+                logger.warning(f"Init exchange {sym}: {e}")
 
     def _daily_reset_check(self):
         today = date.today()

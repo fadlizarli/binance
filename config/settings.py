@@ -14,10 +14,13 @@ class APIConfig:
 
 @dataclass
 class TradingConfig:
-    symbol:    str = field(default_factory=lambda: os.getenv("SYMBOL", "BTCUSDT"))
-    timeframe: str = field(default_factory=lambda: os.getenv("TIMEFRAME", "1h"))
-    leverage:  int = field(default_factory=lambda: int(os.getenv("LEVERAGE", "5")))
-    strategy:  str = field(default_factory=lambda: os.getenv("STRATEGY", "trend_following"))
+    symbol:       str  = field(default_factory=lambda: os.getenv("SYMBOL", "BTCUSDT"))
+    timeframe:    str  = field(default_factory=lambda: os.getenv("TIMEFRAME", "1h"))
+    leverage:     int  = field(default_factory=lambda: int(os.getenv("LEVERAGE", "5")))
+    strategy:     str  = field(default_factory=lambda: os.getenv("STRATEGY", "trend_following"))
+    scan_symbols: list = field(default_factory=lambda: [
+        s.strip() for s in os.getenv("SCAN_SYMBOLS", "").split(",") if s.strip()
+    ])
 
 
 @dataclass
