@@ -30,6 +30,7 @@ class RiskConfig:
     rr_ratio:            float = field(default_factory=lambda: float(os.getenv("RR_RATIO", "2.0")))
     max_daily_drawdown:  float = field(default_factory=lambda: float(os.getenv("MAX_DAILY_DRAWDOWN", "5.0")))
     max_trades_per_day:  int   = field(default_factory=lambda: int(os.getenv("MAX_TRADES_PER_DAY", "5")))
+    min_balance:         float = field(default_factory=lambda: float(os.getenv("MIN_BALANCE", "50.0")))
     trailing_stop_enabled: bool = True
     min_rr_ratio:        float = 1.5
 

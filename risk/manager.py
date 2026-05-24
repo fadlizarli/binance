@@ -94,6 +94,9 @@ class RiskManager:
         if not self._initialized:
             self.set_initial_balance(balance)
 
+        if balance < self.risk_cfg.min_balance:
+            return False, f"Balance ${balance:.2f} di bawah minimum ${self.risk_cfg.min_balance:.0f} — bot berhenti untuk lindungi modal"
+
         if self.daily_trades >= self.risk_cfg.max_trades_per_day:
             return False, f"Batas trade harian ({self.risk_cfg.max_trades_per_day}) tercapai"
 

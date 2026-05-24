@@ -96,6 +96,7 @@ SL_ATR_MULTIPLIER=1.5       # Jarak SL = ATR × multiplier
 RR_RATIO=2.0                # Risk:Reward ratio
 MAX_DAILY_DRAWDOWN=3.0      # % max drawdown per hari
 MAX_TRADES_PER_DAY=3        # Max posisi per hari
+MIN_BALANCE=50.0            # Bot berhenti jika balance di bawah angka ini ($)
 
 # Telegram (opsional)
 TELEGRAM_BOT_TOKEN=
