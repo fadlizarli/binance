@@ -9,6 +9,7 @@ sys.path.insert(0, BASE_DIR)
 
 _client = None
 _scan_cache = {"time": 0, "data": []}
+_live_cache = {"time": 0, "data": {}}
 def get_client():
     global _client
     if _client is None:
@@ -281,7 +282,8 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 .logo{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green);letter-spacing:3px}
 .logo span{color:var(--muted)}
 .status-pill{display:flex;align-items:center;gap:6px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);padding:4px 10px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--green)}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:none}
+.dot.running{background:var(--green);animation:pulse 1.5s infinite}
 .dot.off{background:var(--red);animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.2}}
 .tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;position:sticky;top:0;z-index:99}
@@ -770,17 +772,62 @@ async function loadScanPairs(){
     else if(_selPair){const found=_scanPairs.find(x=>x.symbol===_selPair);if(found)selectPair(_selPair);}
   }catch(e){const c=document.getElementById('pair_cards');if(c)c.innerHTML='<div class="pair-loading">Gagal memuat</div>';}
 }
+async function refreshLive(){
+  try{
+    const lv=await(await fetch('/api/live')).json();
+    if(lv.balance!=null)document.getElementById('bal').textContent=fmt(lv.balance);
+    document.getElementById('sol_p').textContent=lv.current_price?fmt(lv.current_price):'-';
+    const upnl=lv.unrealized_pnl||0;
+    const ue=document.getElementById('upnl');ue.textContent=(upnl>=0?'+':'')+fmt(upnl);ue.className='stat-val '+(upnl>0?'green':upnl<0?'red':'');
+    document.getElementById('liq').textContent=lv.liquidation_price?'Liq: '+fmt(lv.liquidation_price):'Liq: -';
+    const p=lv.position;
+    if(p&&p.side){
+      document.getElementById('pside').textContent=p.side;document.getElementById('pside').className='side-badge '+p.side;
+      document.getElementById('psym').textContent=p.symbol||'-';
+      document.getElementById('pe').textContent=fmt(p.entry);document.getElementById('pe').className='pos-value '+(p.side==='LONG'?'green':'red');
+      if(lv.current_price)document.getElementById('pp').textContent=fmt(lv.current_price);
+      document.getElementById('psl').textContent=p.sl?fmt(p.sl):'-';
+      document.getElementById('ptp').textContent=p.tp?fmt(p.tp):'-';
+      const tprog=p.trail_progress||0;const ta=p.trail_active||false;const tmu=p.trail_mult||0;
+      document.getElementById('tw').style.display='block';
+      document.getElementById('tf').style.width=tprog+'%';
+      document.getElementById('tp2').textContent=tprog.toFixed(1)+'%';
+      if(ta){
+        let ml=tmu==0.5?'ATR x0.5 Sangat ketat':tmu==0.8?'ATR x0.8 Ketat':tmu==1.2?'ATR x1.2 Agak ketat':'ATR x2.0 Longgar';
+        document.getElementById('ts').textContent='Trailing AKTIF';document.getElementById('ts').className='green';
+        document.getElementById('tm').textContent=ml;
+      }else{
+        document.getElementById('ts').textContent='Menunggu 50% TP ('+tprog.toFixed(1)+'%)';
+        document.getElementById('ts').className='';document.getElementById('tm').textContent='';
+      }
+      if(p.sl&&p.tp&&lv.current_price){
+        const pct=p.side==='LONG'?(lv.current_price-p.sl)/(p.tp-p.sl)*100:(p.sl-lv.current_price)/(p.sl-p.tp)*100;
+        document.getElementById('bfill').style.width=Math.min(Math.max(pct,0),100)+'%';
+        document.getElementById('bsl').textContent='SL '+fmt(p.sl,1);
+        document.getElementById('btp').textContent='TP '+fmt(p.tp,1);
+        document.getElementById('bwrap').style.display='block';
+      }
+      _cp=p;document.getElementById('cbw').style.display='block';
+      const ps=document.getElementById('pos_status');
+      ps.textContent=p.side+' @ '+fmt(p.entry);
+      ps.className=p.side==='LONG'?'green':'red';
+    }else{
+      document.getElementById('pside').textContent='TIDAK ADA';document.getElementById('pside').className='side-badge NONE';
+      ['pe','pp','psl','ptp'].forEach(id=>{document.getElementById(id).textContent='-';document.getElementById(id).className='pos-value';});
+      ['bwrap','tw','erw'].forEach(id=>document.getElementById(id).style.display='none');
+      document.getElementById('cbw').style.display='none';_cp=null;
+    }
+  }catch(e){}
+}
 async function refresh(){
   try{
     const d=await(await fetch('/api/status')).json();
-    document.getElementById('dot').className='dot '+(d.bot_running?'on':'off');
+    document.getElementById('dot').className='dot '+(d.bot_running?'running':'off');
     document.getElementById('stxt').textContent=d.bot_running?'RUNNING':'STOPPED';
-    document.getElementById('bal').textContent=d.balance!=null?fmt(d.balance):'-';
+    const balFromLog=d.balance;
+    if(balFromLog!=null)document.getElementById('bal').textContent=fmt(balFromLog);
     const pnl=d.total_pnl||0;
     const pe=document.getElementById('pnl');pe.textContent=(pnl>=0?'+':'')+fmt(Math.abs(pnl));pe.className='stat-val '+(pnl>0?'green':pnl<0?'red':'');
-    const upnl=d.unrealized_pnl||0;
-    const ue=document.getElementById('upnl');ue.textContent=(upnl>=0?'+':'')+fmt(upnl);ue.className='stat-val '+(upnl>0?'green':upnl<0?'red':'');
-    document.getElementById('liq').textContent=d.liquidation_price?'Liq: '+fmt(d.liquidation_price):'Liq: -';
     document.getElementById('strat').textContent=d.strategy?d.strategy.replace(/_/g,' ').toUpperCase():'-';
     const symLabel=d.scanner_mode?'SCANNER ('+((d.scan_symbols||[]).length)+'P)':(d.symbol||'-');
     document.getElementById('symsub').textContent=symLabel+' · '+(d.timeframe||'-');
@@ -789,7 +836,6 @@ async function refresh(){
     if(fg!=null){fe.textContent=fg+' ('+d.fg_label+')';fe.className=fg<35?'red':fg<50?'yellow':'green';}
     const htf=d.htf_current||'?';
     const he=document.getElementById('htf_d');he.textContent=htf;he.className=htf==='BULLISH'?'green':htf==='BEARISH'?'red':'yellow';
-    document.getElementById('sol_p').textContent=d.current_price?fmt(d.current_price):'-';
     const p=d.position;
     const ps=document.getElementById('pos_status');
     ps.textContent=p&&p.side?p.side+' @ '+fmt(p.entry):'Tidak Ada';
@@ -850,45 +896,7 @@ async function refresh(){
         cd.style.borderColor=ca==='LONG'?'rgba(0,230,118,0.2)':ca==='SHORT'?'rgba(255,61,87,0.2)':'rgba(255,214,0,0.2)';
       }
     }
-    if(p&&p.side){
-      document.getElementById('pside').textContent=p.side;document.getElementById('pside').className='side-badge '+p.side;
-      document.getElementById('psym').textContent=p.symbol||d.symbol||'-';
-      document.getElementById('pe').textContent=fmt(p.entry);document.getElementById('pe').className='pos-value '+(p.side==='LONG'?'green':'red');
-      document.getElementById('pp').textContent=fmt(d.current_price);
-      document.getElementById('psl').textContent=p.sl?fmt(p.sl):'-';
-      document.getElementById('ptp').textContent=p.tp?fmt(p.tp):'-';
-      if(p.sl&&p.tp&&d.current_price){
-        const pct=p.side==='LONG'?(d.current_price-p.sl)/(p.tp-p.sl)*100:(p.sl-d.current_price)/(p.sl-p.tp)*100;
-        document.getElementById('bfill').style.width=Math.min(Math.max(pct,0),100)+'%';
-        document.getElementById('bsl').textContent='SL '+fmt(p.sl,1);
-        document.getElementById('btp').textContent='TP '+fmt(p.tp,1);
-        document.getElementById('bwrap').style.display='block';
-      }
-      const tprog=p.trail_progress||0;const ta=p.trail_active||false;const tmu=p.trail_mult||0;
-      document.getElementById('tw').style.display='block';
-      document.getElementById('tf').style.width=tprog+'%';
-      document.getElementById('tp2').textContent=tprog.toFixed(1)+'%';
-      if(ta){
-        let ml=tmu==0.5?'ATR x0.5 Sangat ketat':tmu==0.8?'ATR x0.8 Ketat':tmu==1.2?'ATR x1.2 Agak ketat':'ATR x2.0 Longgar';
-        document.getElementById('ts').textContent='Trailing AKTIF';document.getElementById('ts').className='green';
-        document.getElementById('tm').textContent=ml;
-      }else{
-        document.getElementById('ts').textContent='Menunggu 50% TP ('+tprog.toFixed(1)+'%)';
-        document.getElementById('ts').className='';document.getElementById('tm').textContent='';
-      }
-      if(p.entry_reasons&&p.entry_reasons.length){
-        document.getElementById('erw').style.display='block';
-        document.getElementById('ec').textContent=p.claude_conf?'Claude '+p.claude_conf:'';
-        document.getElementById('eh').textContent=p.htf_trend?'HTF: '+p.htf_trend:'';
-        document.getElementById('er').innerHTML=p.entry_reasons.map(r=>'<div class="reason-item">'+r+'</div>').join('');
-      }
-      _cp=p;document.getElementById('cbw').style.display='block';
-    }else{
-      document.getElementById('pside').textContent='TIDAK ADA';document.getElementById('pside').className='side-badge NONE';
-      ['pe','pp','psl','ptp'].forEach(id=>{document.getElementById(id).textContent='-';document.getElementById(id).className='pos-value';});
-      ['bwrap','tw','erw'].forEach(id=>document.getElementById(id).style.display='none');
-      document.getElementById('cbw').style.display='none';_cp=null;
-    }
+    refreshLive();
     if(d.logs&&d.logs.length){
       const lb=document.getElementById('lb2');
       lb.innerHTML=d.logs.map(l=>{
@@ -925,8 +933,9 @@ async function doClose(){
     else{document.getElementById('pin_error').style.display='block';document.getElementById('pin_error').textContent=d.error||'Gagal!';}
   }catch(e){alert('Error: '+e.message);}
 }
-refresh();loadTrades();
+refresh();loadTrades();refreshLive();
 setInterval(refresh,10000);setInterval(loadTrades,30000);
+setInterval(refreshLive,15000);
 setInterval(()=>{if(_scannerMode)loadScanPairs();},90000);
 </script>
 </body>
@@ -939,11 +948,10 @@ def index():
 @app.route("/api/status")
 def api_status():
     try:
-        logs = parse_logs()
-        state = extract_state(logs)
-        state = enrich_with_binance(state)
+        logs   = parse_logs()
+        state  = extract_state(logs)
         trades = parse_trades()
-        perf = get_perf(trades)
+        perf   = get_perf(trades)
         total_pnl = round(sum(float(t["pnl"]) for t in trades), 2)
         from config import config
         return jsonify({
@@ -960,6 +968,23 @@ def api_status():
         })
     except Exception as e:
         return jsonify({"error": str(e), "bot_running": False})
+
+@app.route("/api/live")
+def api_live():
+    global _live_cache
+    import time as _t
+    now = _t.time()
+    if now - _live_cache["time"] < 15 and _live_cache["data"]:
+        return jsonify({**_live_cache["data"], "cached": True})
+    try:
+        state = {"balance": None, "current_price": None, "position": None,
+                 "unrealized_pnl": 0, "liquidation_price": None}
+        state = enrich_with_binance(state)
+        _live_cache = {"time": now, "data": state}
+        return jsonify({**state, "cached": False})
+    except Exception as e:
+        return jsonify({"balance": None, "current_price": None,
+                        "position": None, "error": str(e)})
 
 @app.route("/api/trades")
 def api_trades():
