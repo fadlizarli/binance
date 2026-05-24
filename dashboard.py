@@ -290,7 +290,6 @@ HTML = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CryptoBot</title>
-<script async src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{--bg:#070a0e;--bg2:#0d1117;--bg3:#161b22;--brd:#1e2530;--grn:#00e676;--red:#ff3d57;--ylw:#ffd600;--blu:#2979ff;--txt:#e6edf3;--mut:#586069}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -596,7 +595,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
     <div class="bar-track"><div class="bar-fill" id="pf-beb" style="background:linear-gradient(90deg,var(--red),var(--ylw),var(--grn));width:0%"></div></div>
   </div>
   <div class="sec">Equity Curve</div>
-  <div class="card"><canvas id="eqChart" height="120"></canvas></div>
+  <div class="card" style="padding:0;overflow:hidden"><svg id="eqChart" width="100%" height="120" style="display:block"></svg></div>
 </div>
 
 <!-- LOG -->
@@ -626,7 +625,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
 
 <script>
 // ── State ────────────────────────────────────────────────────────────────────
-var eqChart = null, macdHist = [], scanMode = false, selPair = null, scanPairs = [], closingPos = null;
+var macdHist = [], scanMode = false, selPair = null, scanPairs = [], closingPos = null;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
@@ -642,29 +641,29 @@ function tab(name, idx){
   });
 }
 
-// ── Equity chart ─────────────────────────────────────────────────────────────
+// ── Equity chart (pure SVG, no external lib) ─────────────────────────────────
 function updateEquity(pts, bal){
-  if(typeof Chart === 'undefined') return;
-  var ctx = $('eqChart'); if(!ctx) return;
+  var svg = $('eqChart'); if(!svg) return;
   var data = [122.0].concat(pts||[]);
-  if(bal) data.push(bal);
-  var col = data[data.length-1] >= 122.0 ? '#00e676' : '#ff3d57';
-  if(eqChart){
-    eqChart.data.datasets[0].data = data;
-    eqChart.data.datasets[0].borderColor = col;
-    eqChart.update(); return;
-  }
-  eqChart = new Chart(ctx, {
-    type:'line',
-    data:{labels:data.map(function(_,i){return i;}),datasets:[{data:data,borderColor:col,borderWidth:1.5,pointRadius:0,fill:true,
-      backgroundColor:function(ctx2){
-        var c=ctx2.chart,ca=c.chartArea; if(!ca) return 'transparent';
-        var g=c.ctx.createLinearGradient(0,ca.top,0,ca.bottom);
-        g.addColorStop(0,col+'33'); g.addColorStop(1,col+'00'); return g;
-      },tension:0.4}]},
-    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.raw.toFixed(2);}},backgroundColor:'#161b22',bodyColor:'#e6edf3',borderColor:'#1e2530',borderWidth:1}},
-      scales:{x:{display:false},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#586069',font:{family:'Courier New',size:9},callback:function(v){return '$'+v.toFixed(0);}}}}}
-  });
+  if(bal != null) data.push(bal);
+  if(data.length < 2){ svg.innerHTML=''; return; }
+  var W=svg.clientWidth||320, H=120, pad=28, bot=16;
+  var mn=Math.min.apply(null,data), mx=Math.max.apply(null,data);
+  var rng=mx-mn||1;
+  var col=data[data.length-1]>=122.0?'#00e676':'#ff3d57';
+  var xS=function(i){return pad+(i/(data.length-1))*(W-pad*2);};
+  var yS=function(v){return bot+(1-(v-mn)/rng)*(H-bot*2);};
+  var pts2=data.map(function(v,i){return xS(i)+','+yS(v);}).join(' ');
+  var area='M '+xS(0)+','+H+' L '+data.map(function(v,i){return xS(i)+','+yS(v);}).join(' L ')+' L '+xS(data.length-1)+','+H+' Z';
+  var yLbls=['',mx.toFixed(0),((mx+mn)/2).toFixed(0),mn.toFixed(0)].map(function(v,i){
+    if(!v) return '';
+    var y=bot+(i/3)*(H-bot*2);
+    return '<text x="'+(pad-4)+'" y="'+y+'" fill="#586069" font-size="8" text-anchor="end" dominant-baseline="middle">$'+v+'</text>';
+  }).join('');
+  svg.innerHTML='<defs><linearGradient id="eq-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+col+'" stop-opacity="0.25"/><stop offset="100%" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'
+    +'<path d="'+area+'" fill="url(#eq-g)"/>'
+    +'<polyline points="'+pts2+'" fill="none" stroke="'+col+'" stroke-width="1.5" stroke-linejoin="round"/>'
+    +yLbls;
 }
 
 // ── MACD bars ─────────────────────────────────────────────────────────────────
