@@ -8,6 +8,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 _client = None
+_scan_cache = {"time": 0, "data": []}
 def get_client():
     global _client
     if _client is None:
@@ -351,6 +352,20 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 .modal-btn.confirm{background:var(--red);color:white}
 .modal-btn.cancel{background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
 .timestamp{text-align:center;font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pair-wrap{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:10px}
+.pair-wrap::-webkit-scrollbar{display:none}
+.pair-row{display:flex;gap:6px;min-width:max-content;padding-bottom:2px}
+.pair-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;min-width:76px;cursor:pointer;transition:border-color .2s,background .2s;text-align:center}
+.pair-card:hover{border-color:var(--blue)}
+.pair-card.active{border-color:var(--green)!important;background:rgba(0,230,118,0.07)}
+.pair-card.sig-long{border-color:rgba(0,230,118,0.35)}
+.pair-card.sig-short{border-color:rgba(255,61,87,0.35)}
+.pc-sym{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.pc-sig{font-size:9px;font-weight:700;letter-spacing:.5px;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.pc-bar-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.pc-bar-fill{height:100%;border-radius:2px}
+.pc-meta{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted)}
+.pair-loading{text-align:center;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);padding:16px}
 </style>
 </head>
 <body>
@@ -360,7 +375,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 </div>
 <div class="tabs">
   <div class="tab active" onclick="showPage('ringkasan',0)">Ringkasan</div>
-  <div class="tab" onclick="showPage('analisa',1)">Analisa</div>
+  <div class="tab" onclick="showPage('analisa',1);if(_scannerMode)loadScanPairs()">Analisa</div>
   <div class="tab" onclick="showPage('posisi',2)">Posisi</div>
   <div class="tab" onclick="showPage('performa',3)">Performa</div>
   <div class="tab" onclick="showPage('log',4)">Log</div>
@@ -399,6 +414,14 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
   </div>
 </div>
 <div class="page" id="page-analisa">
+  <div id="pair_selector" style="display:none">
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Scan Pairs</span>
+      <span id="scan_ts" style="font-size:9px;font-weight:400;color:var(--muted)"></span>
+    </div>
+    <div class="pair-wrap"><div class="pair-row" id="pair_cards"><div class="pair-loading">Memuat...</div></div></div>
+    <div class="section-title" style="margin-top:4px">Detail: <span id="pair_detail_sym" style="color:var(--green)">-</span></div>
+  </div>
   <div class="card">
     <div class="card-title">Signal Score</div>
     <div class="score-wrap">
@@ -605,7 +628,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 </div>
 <div class="timestamp">Auto-refresh 10s | <span id="upd">-</span></div>
 <script>
-let _cp=null,_eqChart=null,_macdHist=[];
+let _cp=null,_eqChart=null,_macdHist=[],_scanPairs=[],_selPair=null,_scannerMode=false;
 function showPage(name,idx){
   ['ringkasan','analisa','posisi','performa','log'].forEach((n,i)=>{
     document.querySelectorAll('.tab')[i].classList.toggle('active',i===idx);
@@ -645,6 +668,107 @@ async function loadTrades(){
       return '<tr><td style="color:var(--muted);font-size:10px">'+dt+'</td><td style="color:'+sc+';font-weight:700">'+t.side+'</td><td style="text-align:right">$'+parseFloat(t.entry).toFixed(2)+'</td><td style="text-align:right">$'+parseFloat(t.exit).toFixed(2)+'</td><td style="text-align:right;color:'+pc+';font-weight:700">'+(pv>=0?'+':'')+fmt(Math.abs(pv))+'</td><td style="text-align:center;color:var(--muted)">'+rs+'</td></tr>';
     }).join('');
   }catch(e){console.error(e);}
+}
+function updateAnalysisDetail(ind,sig,htf,fg,fgLabel,symLabel){
+  if(symLabel)document.getElementById('pair_detail_sym').textContent=symLabel;
+  const sm=sig.reason?sig.reason.match(/L:(\d+) S:(\d+)/):null;
+  document.getElementById('a_lscore').textContent=sm?sm[1]:'-';
+  document.getElementById('a_sscore').textContent=sm?sm[2]:'-';
+  const sr=document.getElementById('a_signal_result');
+  if(sig.action==='LONG'){sr.textContent='LONG '+sig.reason;sr.className='signal-result badge-bullish';}
+  else if(sig.action==='SHORT'){sr.textContent='SHORT '+sig.reason;sr.className='signal-result badge-bearish';}
+  else{sr.textContent='WAIT'+(sig.reason?' - '+(sig.reason||''):'');sr.className='signal-result badge-wait';}
+  if(ind.ema9&&ind.ema21&&ind.ema55){
+    const mn=Math.min(ind.ema9,ind.ema21,ind.ema55)*0.999;
+    const mx=Math.max(ind.ema9,ind.ema21,ind.ema55)*1.001;
+    const pct=v=>Math.max(5,Math.min(95,(v-mn)/(mx-mn)*100));
+    document.getElementById('ema9_val').textContent=ind.ema9.toFixed(2);
+    document.getElementById('ema9_val').className=ind.ema_trend==='BEARISH'?'red':'green';
+    document.getElementById('ema9_bar').style.width=pct(ind.ema9)+'%';
+    document.getElementById('ema21_val').textContent=ind.ema21.toFixed(2);
+    document.getElementById('ema21_bar').style.width=pct(ind.ema21)+'%';
+    document.getElementById('ema55_val').textContent=ind.ema55.toFixed(2);
+    document.getElementById('ema55_bar').style.width=pct(ind.ema55)+'%';
+  }
+  const eb=document.getElementById('ema_trend_badge');eb.textContent=ind.ema_trend||'-';eb.className=badgeClass(ind.ema_trend);
+  if(ind.rsi){
+    document.getElementById('rsi_big').textContent=ind.rsi.toFixed(1);
+    document.getElementById('rsi_big').className=ind.rsi<30?'red':ind.rsi>70?'yellow':'green';
+    document.getElementById('rsi_zone').textContent=ind.rsi<30?'OVERSOLD':ind.rsi>70?'OVERBOUGHT':'NEUTRAL ZONE';
+    document.getElementById('rsi_zone').className=ind.rsi<30?'red':ind.rsi>70?'yellow':'green';
+    document.getElementById('rsi_ptr').style.left=ind.rsi+'%';
+  }
+  if(ind.macd!==undefined){
+    const mv=ind.macd;const hv=ind.macd_hist;
+    document.getElementById('macd_val').textContent=mv.toFixed(3);document.getElementById('macd_val').className=mv>=0?'green':'red';
+    document.getElementById('macd_hist_val').textContent=(hv>=0?'+':'')+hv.toFixed(3);document.getElementById('macd_hist_val').className=hv>=0?'green':'red';
+    document.getElementById('macd_signal').textContent=mv>=0&&hv>=0?'BULLISH':mv<0&&hv<0?'BEARISH':'MIXED';
+    document.getElementById('macd_signal').className=mv>=0&&hv>=0?'green':mv<0&&hv<0?'red':'yellow';
+    updateMacdBars(hv);
+  }
+  if(ind.bb_lower){
+    document.getElementById('bb_lower').textContent=ind.bb_lower.toFixed(2);
+    document.getElementById('bb_mid').textContent=ind.bb_mid.toFixed(2);
+    document.getElementById('bb_upper').textContent=ind.bb_upper.toFixed(2);
+    const sq=ind.squeeze||ind.bb_squeeze;
+    document.getElementById('squeeze_icon').textContent=sq?'🔥':'✅';
+    document.getElementById('squeeze_title').textContent=sq?'Squeeze AKTIF':'Squeeze Tidak Aktif';
+    document.getElementById('squeeze_title').className=sq?'yellow':'green';
+    document.getElementById('squeeze_sub').textContent=sq?'Volatilitas rendah - breakout akan terjadi':'Harga bergerak bebas';
+  }
+  if(ind.vol_ratio!==undefined){
+    const vr=ind.vol_ratio;
+    document.getElementById('vol_label').textContent=vr.toFixed(2)+'x - '+(ind.vol_status||'-');
+    document.getElementById('vol_label').className=vr>=1.5?'green':vr>=0.7?'blue':'yellow';
+    document.getElementById('vol_bar').style.width=Math.min(vr/2*100,100)+'%';
+  }
+  const tb=document.getElementById('htf_trend_badge');tb.textContent=htf||'-';tb.className=badgeClass(htf);
+  document.getElementById('htf_ema_badge').textContent=ind.ema_trend||'-';document.getElementById('htf_ema_badge').className=badgeClass(ind.ema_trend);
+  const fb=document.getElementById('htf_fg_badge');
+  if(fg!=null){fb.textContent=fg+' '+(fgLabel||'');fb.className=fg<35?'htf-badge badge-bearish':fg<50?'htf-badge badge-neutral':'htf-badge badge-bullish';}
+  const mb=document.getElementById('htf_macd_badge');
+  if(ind.macd!==undefined){mb.textContent=ind.macd.toFixed(2);mb.className=ind.macd<-0.3?'htf-badge badge-bearish':ind.macd>0.3?'htf-badge badge-bullish':'htf-badge badge-neutral';}
+}
+function selectPair(sym){
+  _selPair=sym;
+  document.querySelectorAll('.pair-card').forEach(c=>c.classList.toggle('active',c.dataset.sym===sym));
+  const p=_scanPairs.find(x=>x.symbol===sym);
+  if(!p||p.error)return;
+  const ind={ema9:p.ema9,ema21:p.ema21,ema55:p.ema55,ema_trend:p.ema_trend,
+    rsi:p.rsi,macd:p.macd,macd_hist:p.macd_hist,
+    bb_lower:p.bb_lower,bb_mid:p.bb_mid,bb_upper:p.bb_upper,bb_squeeze:p.bb_squeeze,
+    vol_ratio:p.vol_ratio,vol_status:p.vol_status};
+  const sig={action:p.signal,strength:p.strength,reason:p.reason};
+  const fg=document.getElementById('htf_fg_badge').textContent;
+  updateAnalysisDetail(ind,sig,p.htf_trend,null,null,p.symbol);
+}
+async function loadScanPairs(){
+  try{
+    const d=await(await fetch('/api/scan_pairs')).json();
+    _scanPairs=d.pairs||[];
+    const ts=d.cached?'(cache)':('update '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
+    const tse=document.getElementById('scan_ts');if(tse)tse.textContent=ts;
+    const container=document.getElementById('pair_cards');
+    if(!container)return;
+    if(!_scanPairs.length){container.innerHTML='<div class="pair-loading">Tidak ada data</div>';return;}
+    container.innerHTML=_scanPairs.map(p=>{
+      if(p.error)return '<div class="pair-card" data-sym="'+p.symbol+'"><div class="pc-sym">'+p.symbol.replace('USDT','')+'</div><div class="pc-sig" style="color:var(--red)">ERR</div></div>';
+      const sc=p.signal==='LONG'?'var(--green)':p.signal==='SHORT'?'var(--red)':'var(--muted)';
+      const htfC=p.htf_trend==='BULLISH'?'var(--green)':p.htf_trend==='BEARISH'?'var(--red)':'var(--yellow)';
+      const rsiC=(p.rsi||50)<30?'var(--red)':(p.rsi||50)>70?'var(--yellow)':'var(--muted)';
+      const sigClass=p.signal==='LONG'?' sig-long':p.signal==='SHORT'?' sig-short':'';
+      const activeClass=_selPair===p.symbol?' active':'';
+      return '<div class="pair-card'+sigClass+activeClass+'" data-sym="'+p.symbol+'" onclick="selectPair(\''+p.symbol+'\')">'
+        +'<div class="pc-sym">'+p.symbol.replace('USDT','')+'</div>'
+        +'<div class="pc-sig" style="color:'+sc+'">'+p.signal+'</div>'
+        +'<div class="pc-bar-track"><div class="pc-bar-fill" style="background:'+sc+';width:'+Math.round((p.strength||0)*100)+'%"></div></div>'
+        +'<div class="pc-meta" style="color:'+rsiC+'">RSI '+p.rsi+'</div>'
+        +'<div class="pc-meta" style="color:'+htfC+'">'+p.htf_trend+'</div>'
+        +'</div>';
+    }).join('');
+    if(!_selPair&&_scanPairs.length){selectPair(_scanPairs[0].symbol);}
+    else if(_selPair){const found=_scanPairs.find(x=>x.symbol===_selPair);if(found)selectPair(_selPair);}
+  }catch(e){const c=document.getElementById('pair_cards');if(c)c.innerHTML='<div class="pair-loading">Gagal memuat</div>';}
 }
 async function refresh(){
   try{
@@ -704,64 +828,12 @@ async function refresh(){
     document.getElementById('p_awn').textContent='$'+(aw||0).toFixed(2);
     document.getElementById('p_awt').textContent='$'+(pf.target_avg_win||0).toFixed(2);
     updateEquityChart(pf.equity_points,d.balance);
-    const ind=d.last_indicators||{};const sig=d.last_signal||{};
-    const sm=sig.reason?sig.reason.match(/L:(\d+) S:(\d+)/):null;
-    document.getElementById('a_lscore').textContent=sm?sm[1]:'-';
-    document.getElementById('a_sscore').textContent=sm?sm[2]:'-';
-    const sr=document.getElementById('a_signal_result');
-    if(sig.action==='LONG'){sr.textContent='LONG '+sig.reason;sr.className='signal-result badge-bullish';}
-    else if(sig.action==='SHORT'){sr.textContent='SHORT '+sig.reason;sr.className='signal-result badge-bearish';}
-    else{sr.textContent='WAIT'+(sig.reason?' - '+sig.reason:'');sr.className='signal-result badge-wait';}
-    if(ind.ema9&&ind.ema21&&ind.ema55){
-      const mn=Math.min(ind.ema9,ind.ema21,ind.ema55)*0.999;
-      const mx=Math.max(ind.ema9,ind.ema21,ind.ema55)*1.001;
-      const pct=v=>Math.max(5,Math.min(95,(v-mn)/(mx-mn)*100));
-      document.getElementById('ema9_val').textContent=ind.ema9.toFixed(2);
-      document.getElementById('ema9_val').className=ind.ema_trend==='BEARISH'?'red':'green';
-      document.getElementById('ema9_bar').style.width=pct(ind.ema9)+'%';
-      document.getElementById('ema21_val').textContent=ind.ema21.toFixed(2);
-      document.getElementById('ema21_bar').style.width=pct(ind.ema21)+'%';
-      document.getElementById('ema55_val').textContent=ind.ema55.toFixed(2);
-      document.getElementById('ema55_bar').style.width=pct(ind.ema55)+'%';
+    _scannerMode=d.scanner_mode||false;
+    document.getElementById('pair_selector').style.display=_scannerMode?'block':'none';
+    if(!_scannerMode){
+      const ind=d.last_indicators||{};
+      updateAnalysisDetail(ind,d.last_signal||{},htf,fg,d.fg_label,d.symbol);
     }
-    const eb=document.getElementById('ema_trend_badge');eb.textContent=ind.ema_trend||'-';eb.className=badgeClass(ind.ema_trend);
-    if(ind.rsi){
-      document.getElementById('rsi_big').textContent=ind.rsi.toFixed(1);
-      document.getElementById('rsi_big').className=ind.rsi<30?'red':ind.rsi>70?'yellow':'green';
-      document.getElementById('rsi_zone').textContent=ind.rsi<30?'OVERSOLD':ind.rsi>70?'OVERBOUGHT':'NEUTRAL ZONE';
-      document.getElementById('rsi_zone').className=ind.rsi<30?'red':ind.rsi>70?'yellow':'green';
-      document.getElementById('rsi_ptr').style.left=ind.rsi+'%';
-    }
-    if(ind.macd!==undefined){
-      const mv=ind.macd;const hv=ind.macd_hist;
-      document.getElementById('macd_val').textContent=mv.toFixed(3);document.getElementById('macd_val').className=mv>=0?'green':'red';
-      document.getElementById('macd_hist_val').textContent=(hv>=0?'+':'')+hv.toFixed(3);document.getElementById('macd_hist_val').className=hv>=0?'green':'red';
-      document.getElementById('macd_signal').textContent=mv>=0&&hv>=0?'BULLISH':mv<0&&hv<0?'BEARISH':'MIXED';
-      document.getElementById('macd_signal').className=mv>=0&&hv>=0?'green':mv<0&&hv<0?'red':'yellow';
-      updateMacdBars(hv);
-    }
-    if(ind.bb_lower){
-      document.getElementById('bb_lower').textContent=ind.bb_lower.toFixed(2);
-      document.getElementById('bb_mid').textContent=ind.bb_mid.toFixed(2);
-      document.getElementById('bb_upper').textContent=ind.bb_upper.toFixed(2);
-      const sq=ind.squeeze;
-      document.getElementById('squeeze_icon').textContent=sq?'🔥':'✅';
-      document.getElementById('squeeze_title').textContent=sq?'Squeeze AKTIF':'Squeeze Tidak Aktif';
-      document.getElementById('squeeze_title').className=sq?'yellow':'green';
-      document.getElementById('squeeze_sub').textContent=sq?'Volatilitas rendah - breakout akan terjadi':'Harga bergerak bebas';
-    }
-    if(ind.vol_ratio!==undefined){
-      const vr=ind.vol_ratio;
-      document.getElementById('vol_label').textContent=vr.toFixed(2)+'x - '+(ind.vol_status||'-');
-      document.getElementById('vol_label').className=vr>=1.5?'green':vr>=0.7?'blue':'yellow';
-      document.getElementById('vol_bar').style.width=Math.min(vr/2*100,100)+'%';
-    }
-    const tb=document.getElementById('htf_trend_badge');tb.textContent=htf;tb.className=badgeClass(htf);
-    document.getElementById('htf_ema_badge').textContent=ind.ema_trend||'-';document.getElementById('htf_ema_badge').className=badgeClass(ind.ema_trend);
-    const fb=document.getElementById('htf_fg_badge');
-    if(fg!=null){fb.textContent=fg+' '+d.fg_label;fb.className=fg<35?'htf-badge badge-bearish':fg<50?'htf-badge badge-neutral':'htf-badge badge-bullish';}
-    const mb=document.getElementById('htf_macd_badge');
-    if(ind.macd!==undefined){mb.textContent=ind.macd.toFixed(2);mb.className=ind.macd<-0.3?'htf-badge badge-bearish':ind.macd>0.3?'htf-badge badge-bullish':'htf-badge badge-neutral';}
     const ll=d.logs?d.logs.slice().reverse().find(l=>l.includes('Claude API:')||l.includes('Claude cache')):null;
     if(ll){
       const cm=ll.match(/(LONG|SHORT|WAIT) \((\d+)\/10\) \| (.+)/);
@@ -855,6 +927,7 @@ async function doClose(){
 }
 refresh();loadTrades();
 setInterval(refresh,10000);setInterval(loadTrades,30000);
+setInterval(()=>{if(_scannerMode)loadScanPairs();},90000);
 </script>
 </body>
 </html>"""
@@ -928,6 +1001,80 @@ def api_close_position():
         return jsonify({"success": False, "error": "Gagal menutup posisi"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
+
+@app.route("/api/scan_pairs")
+def api_scan_pairs():
+    global _scan_cache
+    import time as _t
+    now = _t.time()
+    if now - _scan_cache["time"] < 90 and _scan_cache["data"]:
+        return jsonify({"pairs": _scan_cache["data"], "cached": True})
+    try:
+        from config import config
+        from core.indicators import IndicatorEngine
+        from strategies import get_strategy
+        scan_symbols = config.trading.scan_symbols or [config.trading.symbol]
+        client = get_client()
+        if not client or not client.is_connected():
+            return jsonify({"pairs": [], "error": "Client tidak tersedia"})
+        ind_engine = IndicatorEngine()
+        strategy   = get_strategy(config.trading.strategy)
+        pairs = []
+        for symbol in scan_symbols:
+            try:
+                df = client.get_klines(symbol, config.trading.timeframe, 200)
+                if df is None or len(df) < 60:
+                    pairs.append({"symbol": symbol, "error": "Data tidak cukup"})
+                    continue
+                df  = df.iloc[:-1]
+                ind = ind_engine.calculate(df)
+                if ind is None:
+                    continue
+                signal = strategy.generate_signal(ind)
+                htf_trend = "NEUTRAL"
+                try:
+                    df4 = client.get_klines(symbol, "4h", 100)
+                    if df4 is not None:
+                        df4   = df4.iloc[:-1]
+                        ind4  = ind_engine.calculate(df4)
+                        if ind4:
+                            e4 = ind4.ema_trend
+                            m4 = getattr(ind4, 'macd_line', 0)
+                            h4 = getattr(ind4, 'macd_hist', 0)
+                            if e4 == "BEARISH":               htf_trend = "BEARISH"
+                            elif e4 == "BULLISH":             htf_trend = "BULLISH"
+                            elif m4 < -0.3 and h4 < -0.05:   htf_trend = "BEARISH"
+                            elif m4 >  0.3 and h4 >  0.05:   htf_trend = "BULLISH"
+                except: pass
+                vr = getattr(ind, 'volume_ratio', 1.0)
+                pairs.append({
+                    "symbol":     symbol,
+                    "price":      round(ind.close, 4),
+                    "rsi":        round(ind.rsi, 1),
+                    "ema_trend":  ind.ema_trend,
+                    "ema9":       round(getattr(ind, 'ema9',  0), 4),
+                    "ema21":      round(getattr(ind, 'ema21', 0), 4),
+                    "ema55":      round(getattr(ind, 'ema55', 0), 4),
+                    "htf_trend":  htf_trend,
+                    "signal":     signal.action,
+                    "strength":   round(signal.strength, 2),
+                    "reason":     signal.reason or "",
+                    "macd":       round(getattr(ind, 'macd_line', 0), 4),
+                    "macd_hist":  round(getattr(ind, 'macd_hist',  0), 4),
+                    "vol_ratio":  round(vr, 2),
+                    "vol_status": "HIGH" if vr >= 1.5 else "NORMAL" if vr >= 0.7 else "LOW",
+                    "bb_lower":   round(getattr(ind, 'bb_lower', 0), 4),
+                    "bb_mid":     round(getattr(ind, 'bb_mid',   0), 4),
+                    "bb_upper":   round(getattr(ind, 'bb_upper', 0), 4),
+                    "bb_squeeze": bool(getattr(ind, 'bb_squeeze', False)),
+                })
+            except Exception as e:
+                pairs.append({"symbol": symbol, "error": str(e)})
+        pairs.sort(key=lambda x: (0 if x.get("signal") in ("LONG","SHORT") else 1, -x.get("strength", 0)))
+        _scan_cache = {"time": now, "data": pairs}
+        return jsonify({"pairs": pairs, "cached": False})
+    except Exception as e:
+        return jsonify({"pairs": [], "error": str(e)})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
