@@ -81,8 +81,8 @@ def get_entry_reasons(entry_price):
                         if "Claude" in l and "/10" in l:
                             m = re.search(r"(\d+)/10", l)
                             if m: claude_conf = m.group(1)+"/10"
-                        if "HTF 4h Trend:" in l:
-                            m = re.search(r"HTF 4h Trend: (\w+)", l)
+                        if "HTF 4h" in l and ("BULLISH" in l or "BEARISH" in l or "NEUTRAL" in l):
+                            m = re.search(r"HTF 4h[^:]*: (\w+)", l)
                             if m: htf_trend = m.group(1)
                     return reasons, claude_conf, htf_trend
         except: pass
@@ -116,7 +116,7 @@ def get_perf(trades):
     shorts=[t for t in trades if t["side"]=="SHORT"]
     lw=[t for t in longs if float(t["pnl"])>0]
     sw=[t for t in shorts if float(t["pnl"])>0]
-    eq=[131.12]
+    eq=[122.0]
     for t in trades:
         eq.append(round(eq[-1]+float(t["pnl"]),2))
     eq_pts=eq[1:]
@@ -149,8 +149,8 @@ def extract_state(logs):
         if "Fear & Greed" in line and "update:" in line:
             m = re.search(r"update: (\d+) \((.+?)\)", line)
             if m: state["fg_value"] = int(m.group(1)); state["fg_label"] = m.group(2)
-        if "HTF 4h Trend:" in line:
-            m = re.search(r"HTF 4h Trend: (\w+)", line)
+        if "HTF 4h" in line and ("BULLISH" in line or "BEARISH" in line or "NEUTRAL" in line):
+            m = re.search(r"HTF 4h[^:]*: (\w+)", line)
             if m: state["htf_current"] = m.group(1)
         if "Membuka posisi LONG" in line: last_side = "LONG"
         elif "Membuka posisi SHORT" in line: last_side = "SHORT"
@@ -188,17 +188,23 @@ def extract_state(logs):
     return state
 
 def enrich_with_binance(state):
-    symbol = "SOLUSDT"
     try:
         from config import config
-        symbol = config.trading.symbol
-    except: pass
+        fixed_symbol = config.trading.symbol
+        scan_symbols = config.trading.scan_symbols or []
+    except:
+        fixed_symbol = "SOLUSDT"
+        scan_symbols = []
 
-    # Public API — no API key needed, always attempt
+    # Tentukan symbol untuk harga live: pakai posisi aktif jika ada, fallback ke fixed
+    log_pos = state.get("position") or {}
+    active_symbol = log_pos.get("symbol") or fixed_symbol
+
+    # Public API — no API key needed
     try:
         import requests as _req
         _r = _req.get(
-            f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}",
+            f"https://api.binance.com/api/v3/ticker/price?symbol={active_symbol}",
             timeout=3
         )
         if _r.status_code == 200:
@@ -208,19 +214,30 @@ def enrich_with_binance(state):
     try:
         client = get_client()
         if not client or not client.is_connected(): return state
-        price = client.get_ticker_price(symbol)
-        if price: state["current_price"] = price  # live client overrides if available
         balance = client.get_account_balance()
         if balance: state["balance"] = balance
-        positions = client.get_open_positions(symbol)
-        pos = positions[0] if positions else None
+
+        # Cari posisi terbuka di semua pair (scanner atau fixed)
+        symbols_to_check = scan_symbols if scan_symbols else [fixed_symbol]
+        pos = None
+        symbol = fixed_symbol
+        for sym in symbols_to_check:
+            try:
+                positions = client.get_open_positions(sym)
+                if positions and float(positions[0].get("positionAmt", 0)) != 0:
+                    pos = positions[0]
+                    symbol = sym
+                    break
+            except: continue
+
+        price = client.get_ticker_price(symbol)
+        if price: state["current_price"] = price
         if pos and pos.get("positionAmt") and float(pos["positionAmt"]) != 0:
             amt = float(pos["positionAmt"])
             ep = float(pos.get("entryPrice", 0))
             liq = float(pos.get("liquidationPrice", 0))
             upnl = float(pos.get("unRealizedProfit", 0))
             side = "LONG" if amt > 0 else "SHORT"
-            log_pos = state.get("position") or {}
             sl_val = log_pos.get("sl")
             tp_val = log_pos.get("tp")
             trail_progress = 0; trail_active = False; trail_mult = 0
@@ -351,7 +368,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
 <div class="page active" id="page-ringkasan">
   <div class="grid2">
     <div class="stat-card"><div class="stat-label">Balance</div><div class="stat-val green" id="bal">-</div><div class="stat-sub">USDT Live</div></div>
-    <div class="stat-card"><div class="stat-label">PnL Total</div><div class="stat-val" id="pnl">-</div><div class="stat-sub">dari $131.12</div></div>
+    <div class="stat-card"><div class="stat-label">PnL Total</div><div class="stat-val" id="pnl">-</div><div class="stat-sub">dari $122.00</div></div>
     <div class="stat-card"><div class="stat-label">Unrealized</div><div class="stat-val" id="upnl">-</div><div class="stat-sub" id="liq">Liq: -</div></div>
     <div class="stat-card"><div class="stat-label">Strategi</div><div class="stat-val yellow" style="font-size:13px" id="strat">-</div><div class="stat-sub" id="symsub">-</div></div>
   </div>
@@ -359,7 +376,7 @@ body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-he
   <div class="card">
     <div class="info-row"><span class="info-key">Fear and Greed</span><span id="fg_d">-</span></div>
     <div class="info-row"><span class="info-key">HTF 4h Trend</span><span id="htf_d">-</span></div>
-    <div class="info-row"><span class="info-key">Harga SOL</span><span id="sol_p">-</span></div>
+    <div class="info-row"><span class="info-key">Harga Live</span><span id="sol_p">-</span></div>
     <div class="info-row"><span class="info-key">Posisi Aktif</span><span id="pos_status">Tidak Ada</span></div>
   </div>
   <div class="section-title">Ringkasan Performa</div>
@@ -608,9 +625,9 @@ function updateMacdBars(h){
 function updateEquityChart(pts,bal){
   const ctx=document.getElementById('equityChart');
   if(!ctx)return;
-  const data=[131.12,...(pts||[])];
+  const data=[122.0,...(pts||[])];
   if(bal)data.push(bal);
-  const col=data[data.length-1]>=131.12?'#00e676':'#ff3d57';
+  const col=data[data.length-1]>=122.0?'#00e676':'#ff3d57';
   if(_eqChart){_eqChart.data.datasets[0].data=data;_eqChart.data.datasets[0].borderColor=col;_eqChart.update();return;}
   _eqChart=new Chart(ctx,{type:'line',data:{labels:data.map((_,i)=>i),datasets:[{data,borderColor:col,borderWidth:1.5,pointRadius:0,fill:true,backgroundColor:(ctx)=>{const{ctx:c,chartArea}=ctx.chart;if(!chartArea)return 'transparent';const g=c.createLinearGradient(0,chartArea.top,0,chartArea.bottom);g.addColorStop(0,col+'33');g.addColorStop(1,col+'00');return g;},tension:0.4}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.raw.toFixed(2)},backgroundColor:'#161b22',titleColor:'#586069',bodyColor:'#e6edf3',borderColor:'#1e2530',borderWidth:1}},scales:{x:{display:false},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#586069',font:{family:'JetBrains Mono',size:9},callback:v=>'$'+v.toFixed(0)}}}}});
 }
@@ -641,7 +658,8 @@ async function refresh(){
     const ue=document.getElementById('upnl');ue.textContent=(upnl>=0?'+':'')+fmt(upnl);ue.className='stat-val '+(upnl>0?'green':upnl<0?'red':'');
     document.getElementById('liq').textContent=d.liquidation_price?'Liq: '+fmt(d.liquidation_price):'Liq: -';
     document.getElementById('strat').textContent=d.strategy?d.strategy.replace(/_/g,' ').toUpperCase():'-';
-    document.getElementById('symsub').textContent=(d.symbol||'-')+' . '+(d.timeframe||'-');
+    const symLabel=d.scanner_mode?'SCANNER ('+((d.scan_symbols||[]).length)+'P)':(d.symbol||'-');
+    document.getElementById('symsub').textContent=symLabel+' · '+(d.timeframe||'-');
     const fg=d.fg_value;
     const fe=document.getElementById('fg_d');
     if(fg!=null){fe.textContent=fg+' ('+d.fg_label+')';fe.className=fg<35?'red':fg<50?'yellow':'green';}
@@ -863,6 +881,8 @@ def api_status():
             "perf": perf,
             "strategy": getattr(config.trading, "strategy", "trend_following"),
             "symbol": config.trading.symbol,
+            "scan_symbols": config.trading.scan_symbols,
+            "scanner_mode": bool(config.trading.scan_symbols),
             "timeframe": config.trading.timeframe,
         })
     except Exception as e:
@@ -886,9 +906,18 @@ def api_close_position():
         if not client:
             return jsonify({"success": False, "error": "Client tidak tersedia"})
         from config import config
+        scan_symbols = config.trading.scan_symbols or []
+        symbols_to_check = scan_symbols if scan_symbols else [config.trading.symbol]
+        pos = None
         symbol = config.trading.symbol
-        positions = client.get_open_positions(symbol)
-        pos = positions[0] if positions else None
+        for sym in symbols_to_check:
+            try:
+                positions = client.get_open_positions(sym)
+                if positions and float(positions[0].get("positionAmt", 0)) != 0:
+                    pos = positions[0]
+                    symbol = sym
+                    break
+            except: continue
         if not pos or float(pos.get("positionAmt", 0)) == 0:
             return jsonify({"success": False, "error": "Tidak ada posisi aktif"})
         amt = float(pos["positionAmt"])
