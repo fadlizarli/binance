@@ -171,35 +171,6 @@ class BotEngine:
             logger.debug(f"Fear & Greed tidak tersedia: {e}")
             self._fg_min_confidence = 7
 
-        # HTF Filter — cek trend 4h sebelum entry
-        htf_trend = "NEUTRAL"
-        try:
-            df_4h = self.exchange.get_klines(symbol, "4h", limit=100)
-            if df_4h is not None:
-                df_4h = df_4h.iloc[:-1]  # hanya candle closed
-                ind_4h = self.indicators.calculate(df_4h)
-                if ind_4h is not None:
-                    ema_trend_4h = ind_4h.ema_trend
-                    macd_4h = getattr(ind_4h, 'macd_line', 0)
-                    hist_4h = getattr(ind_4h, 'macd_hist', 0)
-                    # EMA aligned → pakai EMA
-                    if ema_trend_4h == "BEARISH":
-                        htf_trend = "BEARISH"
-                    elif ema_trend_4h == "BULLISH":
-                        htf_trend = "BULLISH"
-                    # EMA NEUTRAL → fallback ke MACD 4H
-                    elif macd_4h < -0.3 and hist_4h < -0.05:
-                        htf_trend = "BEARISH"
-                    elif macd_4h > 0.3 and hist_4h > 0.05:
-                        htf_trend = "BULLISH"
-                    else:
-                        htf_trend = "NEUTRAL"
-                    ind.htf_trend = htf_trend
-                    logger.debug(f"📊 HTF 4h Trend: {htf_trend} (EMA:{ema_trend_4h} MACD:{macd_4h:.2f} Hist:{hist_4h:.2f})")
-        except Exception as e:
-            logger.warning(f"HTF check gagal: {e}")
-            htf_trend = "NEUTRAL"
-
         # Cek boleh trade
         can_trade, reason = self.risk_manager.can_trade(self.balance)
         if not can_trade:
@@ -236,6 +207,36 @@ class BotEngine:
             self.indicators.print_summary(ind)
             if signal.action == "WAIT":
                 return
+
+        # HTF Filter — cek trend 4h (symbol sudah terdefinisi dari scanner/fixed)
+        htf_trend = "NEUTRAL"
+        try:
+            df_4h = self.exchange.get_klines(symbol, "4h", limit=100)
+            if df_4h is not None:
+                df_4h  = df_4h.iloc[:-1]
+                ind_4h = self.indicators.calculate(df_4h)
+                if ind_4h is not None:
+                    ema_trend_4h = ind_4h.ema_trend
+                    macd_4h = getattr(ind_4h, 'macd_line', 0)
+                    hist_4h = getattr(ind_4h, 'macd_hist', 0)
+                    if ema_trend_4h == "BEARISH":
+                        htf_trend = "BEARISH"
+                    elif ema_trend_4h == "BULLISH":
+                        htf_trend = "BULLISH"
+                    elif macd_4h < -0.3 and hist_4h < -0.05:
+                        htf_trend = "BEARISH"
+                    elif macd_4h > 0.3 and hist_4h > 0.05:
+                        htf_trend = "BULLISH"
+                    else:
+                        htf_trend = "NEUTRAL"
+                    logger.debug(f"📊 HTF 4h ({symbol}): {htf_trend} (EMA:{ema_trend_4h} MACD:{macd_4h:.2f} Hist:{hist_4h:.2f})")
+        except Exception as e:
+            logger.warning(f"HTF check gagal: {e}")
+
+        try:
+            ind.htf_trend = htf_trend
+        except:
+            pass
 
         risk_calc = self.risk_manager.calculate_position(
             side=signal.action,
@@ -284,12 +285,6 @@ class BotEngine:
                     logger.info(f"⛔  HTF NEUTRAL — skip SHORT (hindari melawan potensi bullish)")
                     return
                 logger.debug(f"⚠️ HTF Neutral — hanya LONG diizinkan")
-        except:
-            pass
-
-        # Simpan htf_trend ke ind agar Claude bisa akses
-        try:
-            ind.htf_trend = htf_trend
         except:
             pass
 
