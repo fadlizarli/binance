@@ -290,17 +290,16 @@ HTML = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CryptoBot</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@600;700;800&display=swap');
 :root{--bg:#070a0e;--bg2:#0d1117;--bg3:#161b22;--brd:#1e2530;--grn:#00e676;--red:#ff3d57;--ylw:#ffd600;--blu:#2979ff;--txt:#e6edf3;--mut:#586069}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-height:100vh;padding:12px;padding-bottom:80px}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;padding:12px;padding-bottom:80px}
 /* Header */
 .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--grn);letter-spacing:3px}
+.logo{font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:var(--grn);letter-spacing:3px}
 .logo span{color:var(--mut)}
-.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);padding:4px 10px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace}
+.pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);padding:4px 10px;border-radius:20px;font-size:11px;font-family:'Courier New',monospace}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--mut)}
 .dot.on{background:var(--grn);animation:pulse 1.5s infinite}
 .dot.off{background:var(--red)}
@@ -312,21 +311,21 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
 .page{display:none}.page.active{display:block}
 /* Cards */
 .card{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:14px;margin-bottom:10px}
-.card-title{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;margin-bottom:10px}
+.card-title{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;font-family:'Courier New',monospace;margin-bottom:10px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .scard{background:var(--bg2);border:1px solid var(--brd);border-radius:10px;padding:12px}
-.slabel{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
-.sval{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.ssub{font-size:10px;color:var(--mut);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.slabel{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-family:'Courier New',monospace;margin-bottom:4px}
+.sval{font-size:20px;font-weight:700;font-family:'Courier New',monospace}
+.ssub{font-size:10px;color:var(--mut);margin-top:2px;font-family:'Courier New',monospace}
 /* Info rows */
-.sec{font-size:9px;font-weight:700;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 8px;font-family:'JetBrains Mono',monospace}
-.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--brd);font-size:12px;font-family:'JetBrains Mono',monospace}
+.sec{font-size:9px;font-weight:700;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 8px;font-family:'Courier New',monospace}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--brd);font-size:12px;font-family:'Courier New',monospace}
 .row:last-child{border-bottom:none}
 .rk{color:var(--mut)}
 /* Colors */
 .grn{color:var(--grn)}.red{color:var(--red)}.ylw{color:var(--ylw)}.blu{color:var(--blu)}
 /* Badge */
-.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;font-family:'Courier New',monospace}
 .b-bull{background:rgba(0,230,118,.15);color:var(--grn);border:1px solid rgba(0,230,118,.3)}
 .b-bear{background:rgba(255,61,87,.15);color:var(--red);border:1px solid rgba(255,61,87,.3)}
 .b-neut{background:rgba(255,214,0,.15);color:var(--ylw);border:1px solid rgba(255,214,0,.3)}
@@ -336,17 +335,17 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
 .bar-fill{height:100%;border-radius:3px;transition:width .5s}
 /* Position page */
 .pos-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.side-badge{padding:4px 12px;border-radius:6px;font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.side-badge{padding:4px 12px;border-radius:6px;font-size:13px;font-weight:700;font-family:'Courier New',monospace}
 .sb-long{background:rgba(0,230,118,.15);color:var(--grn);border:1px solid rgba(0,230,118,.3)}
 .sb-short{background:rgba(255,61,87,.15);color:var(--red);border:1px solid rgba(255,61,87,.3)}
 .sb-none{background:var(--bg3);color:var(--mut);border:1px solid var(--brd)}
 .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.plabel{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:3px}
-.pval{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.plabel{font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;font-family:'Courier New',monospace;margin-bottom:3px}
+.pval{font-size:15px;font-weight:700;font-family:'Courier New',monospace}
 /* Analisa */
 .rsi-track{height:10px;background:linear-gradient(90deg,var(--red) 0%,var(--ylw) 30%,var(--grn) 50%,var(--ylw) 70%,var(--red) 100%);border-radius:5px;position:relative;margin:10px 0 4px}
 .rsi-ptr{position:absolute;top:-5px;width:20px;height:20px;background:white;border-radius:50%;border:3px solid var(--bg);transform:translateX(-50%);box-shadow:0 0 8px rgba(255,255,255,.3);transition:left .5s}
-.rsi-lbl{display:flex;justify-content:space-between;font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace}
+.rsi-lbl{display:flex;justify-content:space-between;font-size:9px;color:var(--mut);font-family:'Courier New',monospace}
 .ema-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .ema-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .ema-bar{flex:1;height:3px;background:var(--brd);border-radius:2px;overflow:hidden}
@@ -360,8 +359,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
 .sc-box{flex:1;border-radius:8px;padding:10px;text-align:center}
 .sc-long{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2)}
 .sc-short{background:rgba(255,61,87,.08);border:1px solid rgba(255,61,87,.2)}
-.sc-num{font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace}
-.sig-result{text-align:center;padding:8px;border-radius:6px;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-bottom:10px}
+.sc-num{font-size:32px;font-weight:800;font-family:'Courier New',monospace}
+.sig-result{text-align:center;padding:8px;border-radius:6px;font-size:12px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:1px;margin-bottom:10px}
 /* Pair cards */
 .pair-scroll{overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
 .pair-scroll::-webkit-scrollbar{display:none}
@@ -370,28 +369,28 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
 .pair-card.active{border-color:var(--grn)!important;background:rgba(0,230,118,.06)}
 .pair-card.sl{border-color:rgba(0,230,118,.35)}
 .pair-card.ss{border-color:rgba(255,61,87,.35)}
-.pc-sym{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-bottom:3px}
-.pc-sig{font-size:9px;font-weight:700;letter-spacing:.5px;font-family:'JetBrains Mono',monospace;margin-bottom:3px}
+.pc-sym{font-size:11px;font-weight:700;font-family:'Courier New',monospace;margin-bottom:3px}
+.pc-sig{font-size:9px;font-weight:700;letter-spacing:.5px;font-family:'Courier New',monospace;margin-bottom:3px}
 .pc-bar{height:3px;background:var(--brd);border-radius:2px;overflow:hidden;margin-bottom:3px}
 .pc-fill{height:100%;border-radius:2px}
-.pc-meta{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--mut);line-height:1.6}
+.pc-meta{font-size:9px;font-family:'Courier New',monospace;color:var(--mut);line-height:1.6}
 /* Trade table */
-.trade-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'JetBrains Mono',monospace}
+.trade-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'Courier New',monospace}
 .trade-table th{padding:8px;text-align:left;color:var(--mut);font-size:9px;letter-spacing:.5px;border-bottom:1px solid var(--brd);text-transform:uppercase;font-weight:600}
 .trade-table td{padding:8px;border-bottom:1px solid var(--brd)}
 .trade-table tr:last-child td{border-bottom:none}
 /* Log */
-.log-box{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.8;max-height:500px;overflow-y:auto}
+.log-box{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:10px;line-height:1.8;max-height:500px;overflow-y:auto}
 .ll.e{color:var(--red)}.ll.w{color:var(--ylw)}.ll.s{color:var(--grn)}.ll.d{color:var(--mut)}
 /* Close button & modal */
-.btn-close{width:100%;padding:12px;background:rgba(255,61,87,.1);border:1px solid rgba(255,61,87,.3);color:var(--red);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px}
+.btn-close{width:100%;padding:12px;background:rgba(255,61,87,.1);border:1px solid rgba(255,61,87,.3);color:var(--red);border-radius:8px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999;align-items:center;justify-content:center;padding:20px}
 .modal-box{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:24px;width:100%;max-width:320px;text-align:center}
 .modal-btns{display:flex;gap:10px;margin-top:16px}
-.mbtn{flex:1;padding:11px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;border:none}
+.mbtn{flex:1;padding:11px;border-radius:8px;font-family:'Courier New',monospace;font-size:12px;font-weight:700;cursor:pointer;border:none}
 .mbtn.ok{background:var(--red);color:white}
 .mbtn.cancel{background:var(--bg3);color:var(--mut);border:1px solid var(--brd)}
-.ts{text-align:center;font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)}
+.ts{text-align:center;font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)}
 </style>
 </head>
 <body>
@@ -446,15 +445,15 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
       <span>Scan Pairs</span><span id="scan-ts" style="font-weight:400;color:var(--mut)"></span>
     </div>
     <div class="pair-scroll">
-      <div class="pair-row" id="pair-cards"><div style="color:var(--mut);font-size:11px;font-family:'JetBrains Mono',monospace;padding:8px">Memuat...</div></div>
+      <div class="pair-row" id="pair-cards"><div style="color:var(--mut);font-size:11px;font-family:'Courier New',monospace;padding:8px">Memuat...</div></div>
     </div>
     <div class="sec">Detail: <span id="pair-sym" class="grn">-</span></div>
   </div>
   <div class="card">
     <div class="card-title">Signal Score</div>
     <div class="sc-wrap">
-      <div class="sc-box sc-long"><div class="sc-num grn" id="a-ls">-</div><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">LONG</div></div>
-      <div class="sc-box sc-short"><div class="sc-num red" id="a-ss">-</div><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px">SHORT</div></div>
+      <div class="sc-box sc-long"><div class="sc-num grn" id="a-ls">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px">LONG</div></div>
+      <div class="sc-box sc-short"><div class="sc-num red" id="a-ss">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px">SHORT</div></div>
     </div>
     <div class="sig-result b-wait" id="a-sig">MENUNGGU DATA</div>
   </div>
@@ -462,21 +461,21 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
     <div class="card-title">EMA Stack (1H)</div>
     <div class="ema-row">
       <div class="ema-dot" style="background:var(--blu)"></div>
-      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;font-family:'JetBrains Mono',monospace;margin-bottom:3px"><span style="color:var(--mut)">EMA 9</span><span id="a-e9">-</span></div><div class="ema-bar"><div class="ema-fill" id="a-e9b" style="background:var(--blu);width:30%"></div></div></div>
+      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;font-family:'Courier New',monospace;margin-bottom:3px"><span style="color:var(--mut)">EMA 9</span><span id="a-e9">-</span></div><div class="ema-bar"><div class="ema-fill" id="a-e9b" style="background:var(--blu);width:30%"></div></div></div>
     </div>
     <div class="ema-row">
       <div class="ema-dot" style="background:var(--ylw)"></div>
-      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;font-family:'JetBrains Mono',monospace;margin-bottom:3px"><span style="color:var(--mut)">EMA 21</span><span id="a-e21">-</span></div><div class="ema-bar"><div class="ema-fill" id="a-e21b" style="background:var(--ylw);width:50%"></div></div></div>
+      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;font-family:'Courier New',monospace;margin-bottom:3px"><span style="color:var(--mut)">EMA 21</span><span id="a-e21">-</span></div><div class="ema-bar"><div class="ema-fill" id="a-e21b" style="background:var(--ylw);width:50%"></div></div></div>
     </div>
     <div class="ema-row" style="margin-bottom:0">
       <div class="ema-dot" style="background:var(--grn)"></div>
-      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;font-family:'JetBrains Mono',monospace;margin-bottom:3px"><span style="color:var(--mut)">EMA 55</span><span id="a-e55">-</span></div><div class="ema-bar"><div class="ema-fill" id="a-e55b" style="background:var(--grn);width:70%"></div></div></div>
+      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;font-family:'Courier New',monospace;margin-bottom:3px"><span style="color:var(--mut)">EMA 55</span><span id="a-e55">-</span></div><div class="ema-bar"><div class="ema-fill" id="a-e55b" style="background:var(--grn);width:70%"></div></div></div>
     </div>
     <div style="margin-top:10px;text-align:center"><span class="badge b-neut" id="a-etbadge">-</span></div>
   </div>
   <div class="card">
     <div class="card-title">RSI (14)</div>
-    <div style="text-align:center"><div style="font-size:32px;font-weight:700;font-family:'JetBrains Mono',monospace" id="a-rsi">-</div><div style="font-size:10px;font-family:'JetBrains Mono',monospace;margin-top:2px" id="a-rsi-zone">-</div></div>
+    <div style="text-align:center"><div style="font-size:32px;font-weight:700;font-family:'Courier New',monospace" id="a-rsi">-</div><div style="font-size:10px;font-family:'Courier New',monospace;margin-top:2px" id="a-rsi-zone">-</div></div>
     <div class="rsi-track"><div class="rsi-ptr" id="a-rsi-ptr" style="left:50%"></div></div>
     <div class="rsi-lbl"><span>0</span><span>OS 30</span><span>50</span><span>OB 70</span><span>100</span></div>
   </div>
@@ -484,36 +483,36 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
     <div class="card-title">MACD</div>
     <div class="macd-bars" id="a-macd-bars"></div>
     <div style="display:flex;justify-content:space-between;margin-top:4px">
-      <div style="text-align:center"><div style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600" id="a-macd">-</div><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace">MACD</div></div>
-      <div style="text-align:center"><div style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600" id="a-hist">-</div><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace">HIST</div></div>
-      <div style="text-align:center"><div style="font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600" id="a-macd-sig">-</div><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace">SIGNAL</div></div>
+      <div style="text-align:center"><div style="font-size:13px;font-family:'Courier New',monospace;font-weight:600" id="a-macd">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace">MACD</div></div>
+      <div style="text-align:center"><div style="font-size:13px;font-family:'Courier New',monospace;font-weight:600" id="a-hist">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace">HIST</div></div>
+      <div style="text-align:center"><div style="font-size:11px;font-family:'Courier New',monospace;font-weight:600" id="a-macd-sig">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace">SIGNAL</div></div>
     </div>
   </div>
   <div class="card">
     <div class="card-title">Bollinger Band</div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <div id="a-sq-icon" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.2)">-</div>
-      <div><div style="font-size:13px;font-weight:600" id="a-sq-title">-</div><div style="font-size:10px;color:var(--mut);font-family:'JetBrains Mono',monospace" id="a-sq-sub">-</div></div>
+      <div><div style="font-size:13px;font-weight:600" id="a-sq-title">-</div><div style="font-size:10px;color:var(--mut);font-family:'Courier New',monospace" id="a-sq-sub">-</div></div>
     </div>
     <div style="display:flex;gap:8px">
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace">Lower</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--red)" id="a-bbl">-</div></div>
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace">Mid</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--ylw)" id="a-bbm">-</div></div>
-      <div style="flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace">Upper</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--grn)" id="a-bbu">-</div></div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace">Lower</div><div style="font-size:12px;font-family:'Courier New',monospace;color:var(--red)" id="a-bbl">-</div></div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace">Mid</div><div style="font-size:12px;font-family:'Courier New',monospace;color:var(--ylw)" id="a-bbm">-</div></div>
+      <div style="flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace">Upper</div><div style="font-size:12px;font-family:'Courier New',monospace;color:var(--grn)" id="a-bbu">-</div></div>
     </div>
   </div>
   <div class="card">
     <div class="card-title">Volume</div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;margin-bottom:6px"><span style="color:var(--mut)">Ratio vs MA</span><span id="a-vol" class="blu">-</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Courier New',monospace;margin-bottom:6px"><span style="color:var(--mut)">Ratio vs MA</span><span id="a-vol" class="blu">-</span></div>
     <div class="vol-bar"><div class="vol-fill" id="a-volb" style="width:0%"></div></div>
-    <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace"><span>0x</span><span style="color:var(--ylw)">0.7x</span><span style="color:var(--grn)">1.5x</span></div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--mut);font-family:'Courier New',monospace"><span>0x</span><span style="color:var(--ylw)">0.7x</span><span style="color:var(--grn)">1.5x</span></div>
   </div>
   <div class="card">
     <div class="card-title">HTF 4H Context</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:6px">TREND</div><span class="badge b-neut" id="a-htf">-</span></div>
-      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:6px">EMA 1H</div><span class="badge b-neut" id="a-ema-trend">-</span></div>
-      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:6px">MACD</div><span class="badge b-neut" id="a-macd-htf">-</span></div>
-      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:6px">F&amp;G</div><span class="badge b-neut" id="a-fg-badge">-</span></div>
+      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:6px">TREND</div><span class="badge b-neut" id="a-htf">-</span></div>
+      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:6px">EMA 1H</div><span class="badge b-neut" id="a-ema-trend">-</span></div>
+      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:6px">MACD</div><span class="badge b-neut" id="a-macd-htf">-</span></div>
+      <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:6px">F&amp;G</div><span class="badge b-neut" id="a-fg-badge">-</span></div>
     </div>
   </div>
 </div>
@@ -524,7 +523,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
   <div class="card">
     <div class="pos-hdr">
       <span class="side-badge sb-none" id="p-side">TIDAK ADA</span>
-      <span style="font-size:12px;color:var(--mut);font-family:'JetBrains Mono',monospace" id="p-sym">-</span>
+      <span style="font-size:12px;color:var(--mut);font-family:'Courier New',monospace" id="p-sym">-</span>
     </div>
     <div class="pos-grid">
       <div><div class="plabel">Entry</div><div class="pval" id="p-entry">-</div></div>
@@ -533,17 +532,17 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
       <div><div class="plabel">Take Profit</div><div class="pval grn" id="p-tp">-</div></div>
     </div>
     <div id="p-bar-wrap" style="display:none;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:4px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:4px">
         <span id="p-bar-sl">SL</span><span style="color:var(--ylw)">PRICE</span><span id="p-bar-tp">TP</span>
       </div>
       <div class="bar-track" style="height:6px"><div class="bar-fill" id="p-bar-fill" style="background:linear-gradient(90deg,var(--red),var(--grn));width:50%"></div></div>
     </div>
     <div id="p-trail-wrap" style="display:none">
       <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:12px;margin-bottom:10px">
-        <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;font-family:'JetBrains Mono',monospace;margin-bottom:8px">Trailing Stop</div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;margin-bottom:6px"><span id="p-trail-status" style="color:var(--mut)">Menunggu 50% TP</span><span class="ylw" id="p-trail-mult"></span></div>
+        <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;font-family:'Courier New',monospace;margin-bottom:8px">Trailing Stop</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Courier New',monospace;margin-bottom:6px"><span id="p-trail-status" style="color:var(--mut)">Menunggu 50% TP</span><span class="ylw" id="p-trail-mult"></span></div>
         <div class="bar-track"><div class="bar-fill" id="p-trail-fill" style="background:linear-gradient(90deg,var(--ylw),var(--grn));width:0%"></div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--mut);font-family:'JetBrains Mono',monospace"><span>0%</span><span id="p-trail-pct">0%</span><span>100%</span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--mut);font-family:'Courier New',monospace"><span>0%</span><span id="p-trail-pct">0%</span><span>100%</span></div>
       </div>
     </div>
     <div id="p-upnl-wrap" style="display:none">
@@ -575,11 +574,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
   <div class="sec">Long vs Short</div>
   <div class="card">
     <div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;margin-bottom:4px"><span id="pf-ll" style="color:var(--mut)">LONG 0T</span><span class="grn" id="pf-lwr">-</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Courier New',monospace;margin-bottom:4px"><span id="pf-ll" style="color:var(--mut)">LONG 0T</span><span class="grn" id="pf-lwr">-</span></div>
       <div class="bar-track"><div class="bar-fill" id="pf-lb" style="background:var(--grn);width:0%"></div></div>
     </div>
     <div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;margin-bottom:4px"><span id="pf-sl" style="color:var(--mut)">SHORT 0T</span><span class="red" id="pf-swr">-</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Courier New',monospace;margin-bottom:4px"><span id="pf-sl" style="color:var(--mut)">SHORT 0T</span><span class="red" id="pf-swr">-</span></div>
       <div class="bar-track"><div class="bar-fill" id="pf-sb" style="background:var(--red);width:0%"></div></div>
     </div>
   </div>
@@ -590,7 +589,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
   </div>
   <div class="sec">Break Even Progress</div>
   <div class="card">
-    <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;margin-bottom:4px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Courier New',monospace;margin-bottom:4px">
       <span style="color:var(--mut)">Avg win <span id="pf-awn" class="grn">$0</span> menuju <span id="pf-awt" class="ylw">$0</span></span>
       <span class="ylw" id="pf-bep">-</span>
     </div>
@@ -610,11 +609,11 @@ body{background:var(--bg);color:var(--txt);font-family:'Syne',sans-serif;min-hei
 <div class="modal" id="modal">
   <div class="modal-box">
     <div style="font-size:28px;margin-bottom:12px">⚠️</div>
-    <div style="font-size:11px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:8px">KONFIRMASI CLOSE</div>
+    <div style="font-size:11px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:8px">KONFIRMASI CLOSE</div>
     <div style="font-size:16px;font-weight:700;margin-bottom:4px" id="m-side">-</div>
-    <div style="font-size:12px;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:16px" id="m-pnl">-</div>
+    <div style="font-size:12px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:16px" id="m-pnl">-</div>
     <input id="m-pin" type="password" maxlength="6" placeholder="Masukkan PIN"
-      style="width:100%;padding:11px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;color:var(--txt);font-family:'JetBrains Mono',monospace;font-size:16px;text-align:center;letter-spacing:6px;outline:none;margin-bottom:8px">
+      style="width:100%;padding:11px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;color:var(--txt);font-family:'Courier New',monospace;font-size:16px;text-align:center;letter-spacing:6px;outline:none;margin-bottom:8px">
     <div id="m-err" style="color:var(--red);font-size:11px;display:none;margin-bottom:8px">PIN salah!</div>
     <div class="modal-btns">
       <button class="mbtn ok" onclick="doClose()">Ya, Close</button>
@@ -645,6 +644,7 @@ function tab(name, idx){
 
 // ── Equity chart ─────────────────────────────────────────────────────────────
 function updateEquity(pts, bal){
+  if(typeof Chart === 'undefined') return;
   var ctx = $('eqChart'); if(!ctx) return;
   var data = [122.0].concat(pts||[]);
   if(bal) data.push(bal);
@@ -663,7 +663,7 @@ function updateEquity(pts, bal){
         g.addColorStop(0,col+'33'); g.addColorStop(1,col+'00'); return g;
       },tension:0.4}]},
     options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return '$'+c.raw.toFixed(2);}},backgroundColor:'#161b22',bodyColor:'#e6edf3',borderColor:'#1e2530',borderWidth:1}},
-      scales:{x:{display:false},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#586069',font:{family:'JetBrains Mono',size:9},callback:function(v){return '$'+v.toFixed(0);}}}}}
+      scales:{x:{display:false},y:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#586069',font:{family:'Courier New',size:9},callback:function(v){return '$'+v.toFixed(0);}}}}}
   });
 }
 
@@ -770,7 +770,7 @@ async function loadPairs(){
     if(tse) tse.textContent = d.cached ? '(cache)' : new Date().toLocaleTimeString('id-ID');
     var container = $('pair-cards'); if(!container) return;
     if(!scanPairs.length){
-      container.innerHTML = '<div style="color:var(--mut);font-size:11px;font-family:JetBrains Mono,monospace;padding:8px">Tidak ada sinyal</div>';
+      container.innerHTML = '<div style="color:var(--mut);font-size:11px;font-family:monospace;padding:8px">Tidak ada sinyal</div>';
       return;
     }
     container.innerHTML = scanPairs.map(function(p){
