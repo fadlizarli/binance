@@ -779,7 +779,7 @@ async function loadPairs(){
       var rsic = p.rsi<30?'var(--red)':p.rsi>70?'var(--ylw)':'var(--mut)';
       var sc2 = p.signal==='LONG'?' sl':p.signal==='SHORT'?' ss':'';
       var ac = selPair===p.symbol?' active':'';
-      return '<div class="pair-card'+sc2+ac+'" data-sym="'+p.symbol+'" onclick="selectPair(\''+p.symbol+'\')">'
+      return '<div class="pair-card'+sc2+ac+'" data-sym="'+p.symbol+'" onclick="selectPair(this.dataset.sym)">'
         +'<div class="pc-sym">'+p.symbol.replace('USDT','')+'</div>'
         +'<div class="pc-sig" style="color:'+sc+'">'+p.signal+'</div>'
         +'<div class="pc-bar"><div class="pc-fill" style="background:'+sc+';width:'+Math.round((p.strength||0)*100)+'%"></div></div>'
