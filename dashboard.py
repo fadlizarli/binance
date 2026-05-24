@@ -289,7 +289,7 @@ HTML = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CryptoBot</title>
+<title>CryptoBot v4</title>
 <style>
 :root{--bg:#070a0e;--bg2:#0d1117;--bg3:#161b22;--brd:#1e2530;--grn:#00e676;--red:#ff3d57;--ylw:#ffd600;--blu:#2979ff;--txt:#e6edf3;--mut:#586069}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -394,7 +394,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
 </head>
 <body>
 <div class="hdr">
-  <div class="logo">CRYPTO<span>BOT</span></div>
+  <div class="logo">CRYPTO<span>BOT</span> <span style="font-size:9px;opacity:.4">v4</span></div>
   <div class="pill"><div class="dot" id="dot"></div><span id="stxt">LOADING</span></div>
 </div>
 <div class="tabs">
@@ -981,7 +981,12 @@ setInterval(function(){ if(scanMode) loadPairs(); }, 90000);
 # ── Routes ────────────────────────────────────────────────────────────────────
 @app.route("/")
 def index():
-    return render_template_string(HTML)
+    from flask import make_response
+    resp = make_response(render_template_string(HTML))
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
 
 
 @app.route("/api/status")
