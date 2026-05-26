@@ -124,6 +124,9 @@ def extract_state(logs):
         "signal": None, "ind": {},
         "log_pos": None,
         "claude_approve": 0, "claude_skip": 0,
+        "claude_score": None, "claude_reason": None,
+        "claude_size": None, "claude_size_pct": None,
+        "claude_fear_skip": False,
         "logs": [],
     }
     if not logs:
@@ -160,6 +163,30 @@ def extract_state(logs):
             state["claude_approve"] += 1
         if "Reduced size" in line:
             state["claude_skip"] += 1
+        if "🤖 Claude Risk:" in line:
+            m = re.search(r"Claude Risk: (\d+)/10 \| (.+)", line)
+            if m:
+                state["claude_score"] = int(m.group(1))
+                state["claude_reason"] = m.group(2).strip()
+        if "Full size:" in line:
+            m = re.search(r"Full size: ([0-9.]+)%.*Claude (\d+)/10", line)
+            if m:
+                state["claude_size"] = "Full"; state["claude_size_pct"] = float(m.group(1))
+                state["claude_score"] = int(m.group(2))
+        if "Medium size:" in line:
+            m = re.search(r"Medium size: ([0-9.]+)%.*Claude (\d+)/10", line)
+            if m:
+                state["claude_size"] = "Medium"; state["claude_size_pct"] = float(m.group(1))
+                state["claude_score"] = int(m.group(2))
+        if "Reduced size:" in line:
+            m = re.search(r"Reduced size: ([0-9.]+)%.*Claude (\d+)/10", line)
+            if m:
+                state["claude_size"] = "Reduced"; state["claude_size_pct"] = float(m.group(1))
+                state["claude_score"] = int(m.group(2))
+        if "butuh Claude" in line or "Fear" in line and "butuh" in line:
+            state["claude_fear_skip"] = True
+        if "BOT DIMULAI" in line:
+            state["claude_fear_skip"] = False
         if "Sinyal:" in line:
             m = re.search(r"Sinyal: (\w+) \(strength: ([0-9.]+)\)(.*)", line)
             if m:
@@ -435,6 +462,26 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
     <div class="row"><span class="rk">Trailing Stop</span><span class="grn">50% TP Dynamic</span></div>
     <div class="row"><span class="rk">Claude Full</span><span class="grn" id="s-ca">0</span></div>
     <div class="row"><span class="rk">Claude Reduce</span><span class="red" id="s-cs">0</span></div>
+  </div>
+  <div class="sec">Claude AI — Penilaian Terakhir</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Confidence Score</div>
+        <div style="display:flex;align-items:baseline;gap:4px">
+          <span style="font-size:40px;font-weight:800;font-family:'Courier New',monospace" id="cl-score">-</span>
+          <span style="font-size:14px;color:var(--mut);font-family:'Courier New',monospace" id="cl-denom"></span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Ukuran Posisi</div>
+        <div style="font-size:20px;font-weight:700;font-family:'Courier New',monospace" id="cl-size">-</div>
+        <div style="font-size:12px;font-family:'Courier New',monospace" id="cl-pct" style="color:var(--mut)"></div>
+      </div>
+    </div>
+    <div class="bar-track" style="margin-bottom:8px"><div class="bar-fill" id="cl-bar" style="width:0%;background:var(--ylw)"></div></div>
+    <div class="row" style="border:none;padding:4px 0 0"><span class="rk">Status</span><span id="cl-status">-</span></div>
+    <div style="margin-top:8px;padding:8px;background:var(--bg3);border-radius:6px;font-size:10px;font-family:'Courier New',monospace;color:var(--mut);line-height:1.6;display:none" id="cl-reason"></div>
   </div>
 </div>
 
@@ -885,6 +932,31 @@ async function refresh(){
     if(sse){if(st>0&&stype!=='NONE'){sse.textContent=st+' '+(stype==='WIN'?'Win':'Loss')+' berturut';sse.className=stype==='WIN'?'grn':'red';}else{sse.textContent='-';sse.className='';}}
     txt('s-ca', d.claude_approve||0);
     txt('s-cs', d.claude_skip||0);
+    // Claude AI card
+    var cs=d.claude_score,csize=d.claude_size,cpct=d.claude_size_pct,creason=d.claude_reason;
+    var cse=$('cl-score'),cde=$('cl-denom'),cbe=$('cl-bar'),csie=$('cl-size'),cpe=$('cl-pct'),cste=$('cl-status'),cre=$('cl-reason');
+    if(cs!=null){
+      if(cse){cse.textContent=cs;cse.className=cs>=8?'grn':cs>=5?'ylw':'red';}
+      if(cde) cde.textContent='/10';
+      if(cbe){var bw=cs/10*100;cbe.style.width=bw+'%';cbe.style.background=cs>=8?'var(--grn)':cs>=5?'var(--ylw)':'var(--red)';}
+      if(csie){csie.textContent=csize||'-';csie.className=csize==='Full'?'grn':csize==='Medium'?'ylw':'red';}
+      if(cpe&&cpct!=null) cpe.textContent=cpct+'% dari balance';
+      if(cste){
+        if(d.claude_fear_skip){cste.textContent='Fear Filter — butuh ≥8';cste.className='ylw';}
+        else if(csize==='Full'){cste.textContent='Setup kuat — full size';cste.className='grn';}
+        else if(csize==='Medium'){cste.textContent='Setup cukup — medium size';cste.className='ylw';}
+        else if(csize==='Reduced'){cste.textContent='Risiko tinggi — reduced size';cste.className='red';}
+        else{cste.textContent='Menunggu signal';cste.className='';}
+      }
+      if(cre&&creason){cre.textContent=creason;cre.style.display='block';}
+    }else{
+      if(cse) cse.textContent='-';
+      if(cde) cde.textContent='';
+      if(cste){
+        if(d.claude_filter_enabled===false){cste.textContent='Claude AI dinonaktifkan';cste.className='mut';}
+        else{cste.textContent='Belum ada evaluasi';cste.className='';}
+      }
+    }
     // Performa page
     txt('pf-total',(pf.total||0)+' trade');
     var pw=$('pf-wr');if(pw){pw.textContent=wr+'% ('+(pf.wins||0)+'W '+(pf.losses||0)+'L)';pw.className=wr>=45?'grn':wr>=35?'ylw':'red';}
