@@ -452,8 +452,8 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
   <div class="card">
     <div class="card-title">Signal Score</div>
     <div class="sc-wrap">
-      <div class="sc-box sc-long"><div class="sc-num grn" id="a-ls">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px">LONG</div></div>
-      <div class="sc-box sc-short"><div class="sc-num red" id="a-ss">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px">SHORT</div></div>
+      <div class="sc-box sc-long"><div class="sc-num grn" id="a-ls" style="font-size:36px">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px">LONG</div></div>
+      <div class="sc-box sc-short"><div class="sc-num red" id="a-ss" style="font-size:36px">-</div><div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;text-transform:uppercase;letter-spacing:1px">SHORT</div></div>
     </div>
     <div class="sig-result b-wait" id="a-sig">MENUNGGU DATA</div>
   </div>
@@ -682,9 +682,10 @@ function pushMacd(h){
 function showInd(ind, sig, htf, fg, fgLbl, symLbl){
   if(symLbl) txt('pair-sym', symLbl);
   // Signal score
-  var sm = sig && sig.reason ? sig.reason.match(/L:(\d+) S:(\d+)/) : null;
-  txt('a-ls', sm ? sm[1] : '-');
-  txt('a-ss', sm ? sm[2] : '-');
+  var spct = sig && sig.strength != null ? Math.round(sig.strength*100)+'%' : '-';
+  var lsEl=$('a-ls'), ssEl=$('a-ss');
+  if(lsEl){ lsEl.textContent = (sig&&sig.action==='LONG') ? spct : '-'; }
+  if(ssEl){ ssEl.textContent = (sig&&sig.action==='SHORT') ? spct : '-'; }
   var sr = $('a-sig');
   if(sr){
     if(sig && sig.action==='LONG'){sr.textContent='LONG '+(sig.reason||'');sr.className='sig-result b-bull';}
