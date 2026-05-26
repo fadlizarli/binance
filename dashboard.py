@@ -417,6 +417,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
   <div class="card">
     <div class="row"><span class="rk">Fear &amp; Greed</span><span id="s-fg">-</span></div>
     <div class="row"><span class="rk">HTF 4h Trend</span><span id="s-htf">-</span></div>
+    <div class="row"><span class="rk">Signal Terkuat</span><span id="s-signal">-</span></div>
     <div class="row"><span class="rk">Harga Live</span><span id="s-price">-</span></div>
     <div class="row"><span class="rk">Posisi Aktif</span><span id="s-posisi">Tidak Ada</span></div>
   </div>
@@ -783,6 +784,7 @@ async function loadPairs(){
         +'<div class="pc-sym">'+p.symbol.replace('USDT','')+'</div>'
         +'<div class="pc-sig" style="color:'+sc+'">'+p.signal+'</div>'
         +'<div class="pc-bar"><div class="pc-fill" style="background:'+sc+';width:'+Math.round((p.strength||0)*100)+'%"></div></div>'
+        +'<div class="pc-meta" style="color:'+sc+';font-size:10px;font-weight:700">'+Math.round((p.strength||0)*100)+'%</div>'
         +'<div class="pc-meta" style="color:'+rsic+'">RSI '+p.rsi+'</div>'
         +'<div class="pc-meta" style="color:'+htfc+'">'+p.htf+'</div>'
         +'</div>';
@@ -851,6 +853,13 @@ async function refresh(){
     // HTF
     var htf=d.htf||'?';
     var he=$('s-htf');if(he){he.textContent=htf;he.className=htf==='BULLISH'?'grn':htf==='BEARISH'?'red':'ylw';}
+    // Signal terkuat
+    var sig=d.signal,se=$('s-signal');
+    if(se&&sig&&sig.action&&sig.action!=='WAIT'){
+      var sym=sig.symbol?sig.symbol.replace('USDT','')+' ':''
+      se.textContent=sym+sig.action+' '+Math.round((sig.strength||0)*100)+'%';
+      se.className=sig.action==='LONG'?'grn':'red';
+    }else if(se){se.textContent='WAIT';se.className='';}
     // Log position
     var lp=d.log_pos;
     if(lp && !closingPos){
