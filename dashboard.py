@@ -293,10 +293,23 @@ def get_live_data():
                     px   = client.get_ticker_price(sym)
                     if px:
                         result["price"] = px
+                    sl_price = tp_price = None
+                    try:
+                        orders = client.get_open_orders(sym)
+                        for o in orders:
+                            ot = o.get("type","")
+                            op = float(o.get("stopPrice") or o.get("price") or 0)
+                            if ot in ("STOP_MARKET","STOP") and op:
+                                sl_price = op
+                            elif ot in ("TAKE_PROFIT_MARKET","TAKE_PROFIT") and op:
+                                tp_price = op
+                    except Exception:
+                        pass
                     result["live_pos"] = {
                         "symbol": sym,
                         "side":   "LONG" if amt > 0 else "SHORT",
                         "entry":  ep, "liq": liq, "upnl": upnl,
+                        "sl": sl_price, "tp": tp_price,
                     }
                     result["upnl"] = upnl
                     result["liq"]  = liq
@@ -890,6 +903,13 @@ async function refreshLive(){
       txt('p-entry', fmt(lp.entry));
       cls($('p-entry'), 'pval '+(lp.side==='LONG'?'grn':'red'));
       if(lv.price) txt('p-price', fmt(lv.price));
+      if(lp.sl) txt('p-sl', fmt(lp.sl));
+      if(lp.tp) txt('p-tp', fmt(lp.tp));
+      if(lp.sl && lp.tp){
+        $('p-bar-wrap').style.display='block';
+        txt('p-bar-sl','SL '+fmt(lp.sl,1));
+        txt('p-bar-tp','TP '+fmt(lp.tp,1));
+      }
       updateTrailing(lp, lv.price);
       if(lp.upnl != null){
         $('p-upnl-wrap').style.display='block';

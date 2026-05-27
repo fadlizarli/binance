@@ -95,6 +95,13 @@ class BinanceClient:
         except Exception as e:
             logger.error(f"Gagal ambil posisi: {e}"); return []
 
+    def get_open_orders(self, symbol):
+        if not self.is_connected(): return []
+        try:
+            return self.client.futures_get_open_orders(symbol=symbol)
+        except Exception as e:
+            logger.error(f"Gagal ambil open orders: {e}"); return []
+
     def get_funding_rate(self, symbol):
         if not self.is_connected(): return None
         try:
