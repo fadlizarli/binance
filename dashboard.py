@@ -599,10 +599,26 @@ body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,-app
     </div>
     <div id="p-trail-wrap" style="display:none">
       <div style="background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:12px;margin-bottom:10px">
-        <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;font-family:'Courier New',monospace;margin-bottom:8px">Trailing Stop</div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'Courier New',monospace;margin-bottom:6px"><span id="p-trail-status" style="color:var(--mut)">Menunggu 50% TP</span><span class="ylw" id="p-trail-mult"></span></div>
-        <div class="bar-track"><div class="bar-fill" id="p-trail-fill" style="background:linear-gradient(90deg,var(--ylw),var(--grn));width:0%"></div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--mut);font-family:'Courier New',monospace"><span>0%</span><span id="p-trail-pct">0%</span><span>100%</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;font-family:'Courier New',monospace">Trailing Stop</div>
+          <span id="p-trail-mult" style="font-size:10px;font-family:'Courier New',monospace;color:var(--ylw)"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span id="p-trail-status" style="font-size:12px;font-family:'Courier New',monospace;color:var(--mut)">Menunggu 50% TP</span>
+          <span id="p-trail-pct" style="font-size:14px;font-weight:bold;font-family:'Courier New',monospace;color:var(--grn)">0%</span>
+        </div>
+        <div class="bar-track" style="margin-bottom:4px"><div class="bar-fill" id="p-trail-fill" style="background:var(--brd);width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:10px"><span>Entry</span><span>Aktivasi 50%</span><span>TP</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="background:var(--bg2);border-radius:6px;padding:7px;text-align:center">
+            <div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:2px">AKTIVASI DI</div>
+            <div id="p-trail-actpx" style="font-size:12px;font-family:'Courier New',monospace;color:var(--ylw)">-</div>
+          </div>
+          <div style="background:var(--bg2);border-radius:6px;padding:7px;text-align:center">
+            <div style="font-size:9px;color:var(--mut);font-family:'Courier New',monospace;margin-bottom:2px">PROFIT TERKUNCI</div>
+            <div id="p-trail-lock" style="font-size:12px;font-family:'Courier New',monospace;color:var(--mut)">-</div>
+          </div>
+        </div>
       </div>
     </div>
     <div id="p-upnl-wrap" style="display:none">
@@ -861,28 +877,51 @@ function updateTrailing(pos, price){
   if(!pos || !pos.entry || !pos.tp){ tw.style.display='none'; return; }
   tw.style.display='block';
   var entry=pos.entry, tp=pos.tp, sl=pos.sl, px=price||entry;
-  var total = pos.side==='LONG' ? tp-entry : entry-tp;
-  var moved = pos.side==='LONG' ? px-entry : entry-px;
-  var prog  = total>0 ? Math.max(0,Math.min(1, moved/total)) : 0;
-  var pct   = Math.round(prog*100);
+  var isLong = pos.side==='LONG';
+  var total  = isLong ? tp-entry : entry-tp;
+  var moved  = isLong ? px-entry : entry-px;
+  var prog   = total>0 ? Math.max(0,Math.min(1, moved/total)) : 0;
+  var pct    = Math.round(prog*100);
   var tf=$('p-trail-fill'), ts=$('p-trail-status'), tm=$('p-trail-mult'), tp2=$('p-trail-pct');
+  var actEl=$('p-trail-actpx'), lockEl=$('p-trail-lock');
+
   if(tf) tf.style.width=pct+'%';
-  if(tp2) tp2.textContent=pct+'%';
+  if(tp2){ tp2.textContent=pct+'% ke TP'; tp2.style.color=prog>=0.5?'var(--grn)':'var(--mut)'; }
+
+  // Activation price (50% to TP)
+  var actPx = isLong ? entry + total*0.5 : entry - total*0.5;
+  if(actEl) actEl.textContent = fmt(actPx);
+
   if(prog>=0.5){
-    var mult = prog>=0.90?'0.5×':prog>=0.75?'0.8×':prog>=0.60?'1.2×':'2.0×';
-    var phase= prog>=0.90?'Sangat ketat':prog>=0.75?'Ketat':prog>=0.60?'Agak ketat':'Aktif';
-    if(ts){ts.textContent='Trailing '+phase;ts.style.color='var(--grn)';}
+    var mult  = prog>=0.90?'0.5×':prog>=0.75?'0.8×':prog>=0.60?'1.2×':'2.0×';
+    var phase = prog>=0.90?'Sangat Ketat':prog>=0.75?'Ketat':prog>=0.60?'Agak Ketat':'Aktif';
+    if(ts){ ts.textContent='● Trailing '+phase; ts.style.color='var(--grn)'; }
     if(tm) tm.textContent='ATR '+mult;
     if(tf) tf.style.background='linear-gradient(90deg,var(--ylw),var(--grn))';
+    // Profit locked: compare current SL vs entry
+    if(lockEl && sl){
+      var locked = isLong ? (sl - entry) : (entry - sl);
+      if(locked > 0){
+        lockEl.textContent='+$'+locked.toFixed(2)+'/unit';
+        lockEl.style.color='var(--grn)';
+      } else if(locked === 0){
+        lockEl.textContent='Breakeven';
+        lockEl.style.color='var(--ylw)';
+      } else {
+        lockEl.textContent='Belum terkunci';
+        lockEl.style.color='var(--mut)';
+      }
+    } else if(lockEl){ lockEl.textContent='Belum terkunci'; lockEl.style.color='var(--mut)'; }
   }else{
     var needed=Math.round((0.5-prog)*100);
-    if(ts){ts.textContent='Menunggu 50% TP (kurang '+needed+'%)';ts.style.color='var(--mut)';}
+    if(ts){ ts.textContent='Menunggu (kurang '+needed+'% lagi)'; ts.style.color='var(--mut)'; }
     if(tm) tm.textContent='';
     if(tf) tf.style.background='var(--brd)';
+    if(lockEl){ lockEl.textContent='Belum aktif'; lockEl.style.color='var(--mut)'; }
   }
-  // Breakeven marker
-  var be=$('p-sl');
-  if(be&&sl&&entry&&sl==entry) be.textContent=fmt(sl)+' ⚡BE';
+  // Breakeven marker on SL label
+  var slEl=$('p-sl');
+  if(slEl && sl && entry && sl===entry) slEl.textContent=fmt(sl)+' ⚡BE';
 }
 
 // ── Live data (balance / position / price) ────────────────────────────────────
