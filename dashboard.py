@@ -842,6 +842,36 @@ async function loadPairs(){
   }catch(e){}
 }
 
+// ── Trailing stop progress ────────────────────────────────────────────────────
+function updateTrailing(pos, price){
+  var tw = $('p-trail-wrap'); if(!tw) return;
+  if(!pos || !pos.entry || !pos.tp){ tw.style.display='none'; return; }
+  tw.style.display='block';
+  var entry=pos.entry, tp=pos.tp, sl=pos.sl, px=price||entry;
+  var total = pos.side==='LONG' ? tp-entry : entry-tp;
+  var moved = pos.side==='LONG' ? px-entry : entry-px;
+  var prog  = total>0 ? Math.max(0,Math.min(1, moved/total)) : 0;
+  var pct   = Math.round(prog*100);
+  var tf=$('p-trail-fill'), ts=$('p-trail-status'), tm=$('p-trail-mult'), tp2=$('p-trail-pct');
+  if(tf) tf.style.width=pct+'%';
+  if(tp2) tp2.textContent=pct+'%';
+  if(prog>=0.5){
+    var mult = prog>=0.90?'0.5×':prog>=0.75?'0.8×':prog>=0.60?'1.2×':'2.0×';
+    var phase= prog>=0.90?'Sangat ketat':prog>=0.75?'Ketat':prog>=0.60?'Agak ketat':'Aktif';
+    if(ts){ts.textContent='Trailing '+phase;ts.style.color='var(--grn)';}
+    if(tm) tm.textContent='ATR '+mult;
+    if(tf) tf.style.background='linear-gradient(90deg,var(--ylw),var(--grn))';
+  }else{
+    var needed=Math.round((0.5-prog)*100);
+    if(ts){ts.textContent='Menunggu 50% TP (kurang '+needed+'%)';ts.style.color='var(--mut)';}
+    if(tm) tm.textContent='';
+    if(tf) tf.style.background='var(--brd)';
+  }
+  // Breakeven marker
+  var be=$('p-sl');
+  if(be&&sl&&entry&&sl==entry) be.textContent=fmt(sl)+' ⚡BE';
+}
+
 // ── Live data (balance / position / price) ────────────────────────────────────
 async function refreshLive(){
   try{
@@ -860,6 +890,7 @@ async function refreshLive(){
       txt('p-entry', fmt(lp.entry));
       cls($('p-entry'), 'pval '+(lp.side==='LONG'?'grn':'red'));
       if(lv.price) txt('p-price', fmt(lv.price));
+      updateTrailing(lp, lv.price);
       if(lp.upnl != null){
         $('p-upnl-wrap').style.display='block';
         var upe=$('p-upnl');if(upe){upe.textContent=(lp.upnl>=0?'+':'')+fmt(lp.upnl);upe.className=lp.upnl>=0?'grn':'red';}
@@ -914,13 +945,13 @@ async function refresh(){
       txt('p-sym',  '(log) '+lp.side);
       txt('p-sl',   lp.sl ? fmt(lp.sl) : '-');
       txt('p-tp',   lp.tp ? fmt(lp.tp) : '-');
-      // SL/TP bar
       if(lp.sl && lp.tp){
         $('p-bar-wrap').style.display='block';
         txt('p-bar-sl','SL '+fmt(lp.sl,1));
         txt('p-bar-tp','TP '+fmt(lp.tp,1));
       }
       $('p-trail-wrap').style.display='block';
+      updateTrailing(lp, null);
     }
     // Perf
     var pf=d.perf||{},wr=pf.win_rate||0;
