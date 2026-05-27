@@ -22,6 +22,7 @@ class RiskManager:
         self.risk_cfg = config.risk
         self.daily_pnl: float = 0.0
         self.daily_trades: int = 0
+        self.daily_losses: int = 0
         self.session_high_balance: float = 0.0
         self._initialized: bool = False
 
@@ -100,6 +101,12 @@ class RiskManager:
         if self.daily_trades >= self.risk_cfg.max_trades_per_day:
             return False, f"Batas trade harian ({self.risk_cfg.max_trades_per_day}) tercapai"
 
+        if self.risk_cfg.max_losses_per_day > 0 and self.daily_losses >= self.risk_cfg.max_losses_per_day:
+            return False, f"Batas loss harian ({self.risk_cfg.max_losses_per_day}x) tercapai — bot berhenti hari ini"
+
+        if self.risk_cfg.max_daily_loss_usd > 0 and self.daily_pnl <= -self.risk_cfg.max_daily_loss_usd:
+            return False, f"Max daily loss ${self.risk_cfg.max_daily_loss_usd:.2f} tercapai (loss hari ini: ${self.daily_pnl:.2f})"
+
         if self.session_high_balance > 0 and balance < self.session_high_balance:
             dd_pct = ((self.session_high_balance - balance) / self.session_high_balance) * 100
             if dd_pct >= self.risk_cfg.max_daily_drawdown:
@@ -160,8 +167,15 @@ class RiskManager:
 
     def register_trade_close(self, pnl: float):
         self.daily_pnl += pnl
+        if pnl < 0:
+            self.daily_losses += 1
+            if self.risk_cfg.max_losses_per_day > 0:
+                logger.warning(f"🛑 Loss ke-{self.daily_losses} hari ini (max: {self.risk_cfg.max_losses_per_day})")
+            if self.risk_cfg.max_daily_loss_usd > 0:
+                logger.warning(f"💸 Total loss hari ini: ${self.daily_pnl:.2f} (limit: -${self.risk_cfg.max_daily_loss_usd:.2f})")
 
     def reset_daily(self):
-        logger.info(f"Reset harian | Trades:{self.daily_trades} PnL:${self.daily_pnl:+.2f}")
+        logger.info(f"Reset harian | Trades:{self.daily_trades} Loss:{self.daily_losses} PnL:${self.daily_pnl:+.2f}")
         self.daily_pnl    = 0.0
         self.daily_trades = 0
+        self.daily_losses = 0
